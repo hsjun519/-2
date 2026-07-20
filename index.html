@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👴👵 어르신 안심 스마트 보이스 키오스크 (최종 완성판)</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .scrollbar-none::-webkit-scrollbar { display: none; }
@@ -15,7 +14,6 @@
 
     <div id="app" class="flex flex-col h-screen overflow-hidden text-gray-900">
         
-        <!-- 상단 안심 바 & 직원 호출 -->
         <div class="bg-amber-600 text-white px-4 py-3 flex justify-between items-center shrink-0 shadow-md">
             <div class="flex items-center gap-2 text-base md:text-xl font-black">
                 <span>👵👴</span>
@@ -35,7 +33,6 @@
             </div>
         </div>
 
-        <!-- 🌟 1. 상품 담기 대화형 모달 (세트/단품 가격 및 대화 수량 조절) -->
         <div id="senior-explain-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl border-4 border-amber-500 max-h-[95vh] overflow-y-auto">
                 <div class="flex justify-between items-start mb-4">
@@ -62,7 +59,6 @@
                     </div>
                 </div>
 
-                <!-- 세트/단품 선택기 -->
                 <div id="set-option-container" class="flex gap-4 mb-4 hidden">
                     <button id="btn-option-single" onclick="toggleSetMenu(false)" class="flex-1 py-3 rounded-2xl border-2 border-amber-500 bg-amber-50 font-black text-xl text-amber-900">단품 (+0원)</button>
                     <button id="btn-option-set" onclick="toggleSetMenu(true)" class="flex-1 py-3 rounded-2xl border-2 border-gray-300 bg-white font-black text-xl text-gray-500">세트 (+3,000원)</button>
@@ -84,7 +80,6 @@
             </div>
         </div>
 
-        <!-- 🌟 2. 직원 호출 확인 모달 -->
         <div id="staff-call-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-red-500 text-center animate-fade-in">
                 <div class="text-7xl mb-4 animate-bounce">🙋‍♂️</div>
@@ -100,7 +95,6 @@
             </div>
         </div>
 
-        <!-- 🌟 3. 결제 전 매장/포장 선택 모달 -->
         <div id="checkout-option-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl border-4 border-amber-500 text-center">
                 <h3 class="text-3xl font-black text-gray-900 mb-2">어디서 드시겠습니까?</h3>
@@ -117,7 +111,6 @@
             </div>
         </div>
 
-        <!-- 영수증 모달 -->
         <div id="receipt-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 text-center">
                 <div class="text-5xl mb-3">🎉</div>
@@ -136,7 +129,6 @@
             </div>
         </div>
 
-        <!-- 메인 콘텐츠 영역 -->
         <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
             
             <div id="kiosk-view" class="flex-1 flex flex-col h-full overflow-hidden relative">
@@ -198,7 +190,6 @@
                 </div>
             </div>
 
-            <!-- 오른쪽 장바구니 -->
             <div id="sidebar-cart" class="w-full md:w-[420px] bg-white shadow-2xl flex flex-col h-[40vh] md:h-full border-t-4 border-amber-500 md:border-t-0 md:border-l border-gray-100 z-10 overflow-hidden">
                 <div class="p-4 bg-amber-50 border-b border-gray-200 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -225,7 +216,6 @@
                 </div>
             </div>
 
-            <!-- 실시간 주방 보드 -->
             <div id="kitchen-view" class="flex-1 flex flex-col p-6 overflow-y-auto bg-slate-100 hidden">
                 <div class="flex justify-between items-center mb-6 shrink-0">
                     <div><h2 class="text-2xl font-black text-slate-800 flex items-center gap-2"><span>🕒</span> 실시간 주방 조리 대기 화면</h2></div>
@@ -236,7 +226,6 @@
         </div>
     </div>
 
-    <!-- 스크립트 -->
     <script>
         const MENU_DATA = [
             { id: 1, category: '버거', name: '콰트로치즈버거', price: 6500, icon: '🍔', translation: '네 가지 치즈 햄버거', description: "고소하고 진한 치즈가 듬뿍 들어간 햄버거입니다.", keywords: ['콰트로', '치즈버거', '치즈 많은 거', '치즈 든 거', '치즈 햄버거'] },
@@ -306,7 +295,7 @@
             };
         }
 
-        // 🌟 음성 인터럽트(Ducking) 적용 피드백
+        // 음성 출력 중 사용자 인터럽트를 허용하도록 수정
         function speakFeedback(text) {
             if (isTtsMuted) return;
             if ('speechSynthesis' in window) {
@@ -314,15 +303,6 @@
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ko-KR';
                 utterance.rate = 0.95; 
-                
-                const wasListening = shouldRestartRecognition;
-                if (wasListening) {
-                    shouldRestartRecognition = false;
-                    if(recognition) recognition.stop();
-                }
-                utterance.onend = () => {
-                    if (wasListening) { shouldRestartRecognition = true; try { recognition.start(); } catch(e){} }
-                };
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -352,16 +332,17 @@
         }
 
         function askDictionary(key) {
+            if(key === '추천') {
+                processVoiceCommand('간단하게 먹을만한 거 추천해줘'); return;
+            }
             const answer = SENIOR_DICTIONARY[key];
             if (answer) { showTemporaryFeedback(answer); speakFeedback(answer); }
         }
 
-        // 🌟 통합 음성 사령탑
         function processVoiceCommand(command) {
             const cleanCommand = command.trim();
-            window.speechSynthesis.cancel(); // 말을 걸면 AI가 말을 멈춤
+            window.speechSynthesis.cancel();
 
-            // [0. 공통] 테이크아웃 영어 방어 및 공통 사전 응답
             if (/(테이크\s*아웃|테이크|포장|take\s*out|take)/i.test(cleanCommand) && /(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
                 showTemporaryFeedback(SENIOR_DICTIONARY['테이크아웃']); speakFeedback(SENIOR_DICTIONARY['테이크아웃']); return;
             }
@@ -369,7 +350,6 @@
                 showTemporaryFeedback(SENIOR_DICTIONARY['세트']); speakFeedback(SENIOR_DICTIONARY['세트']); return;
             }
 
-            // [1. 직원 호출 대기중 응답]
             if (currentActiveModal === 'staffCall') {
                 if (/(응|어|그래|불러|해줘|맞아|네|예|좋아)/.test(cleanCommand)) {
                     confirmStaffCall(); return;
@@ -378,7 +358,6 @@
                 }
             }
             
-            // [2. 결제방식 대기중 응답]
             if (currentActiveModal === 'checkoutOption') {
                 if (/(매장|먹고|식사)/.test(cleanCommand)) {
                     finishOrder('매장 식사'); return;
@@ -389,10 +368,8 @@
                 }
             }
 
-            // [3. 아이템 담기 모달 대기중 응답]
             if (currentActiveModal === 'itemAdd') {
                 let actionTriggered = false;
-
                 const qtyMatch = parseStandaloneQuantity(cleanCommand);
                 if (qtyMatch !== null) {
                     currentModalQty = qtyMatch;
@@ -423,7 +400,6 @@
                 }
             }
 
-            // [4. 실행 취소 (Undo)]
             if (/(취소\s*해\s*줘|취소해줘|방금\s*거\s*취소|잘못\s*담았어|그거\s*빼줘|방금거\s*취소|아니\s*취소|아차\s*잘못|이거\s*아니야|^취소$|^취소해$)/.test(cleanCommand)) {
                 if (lastAddedItems.length > 0) {
                     const last = lastAddedItems.pop();
@@ -436,7 +412,6 @@
                 return;
             }
 
-            // [5. 메뉴 추천 ("아무거나", "간단하게")]
             if (/(간단하게|간단\s*하게|가볍게|아무거나).*(먹을|먹기|요기|할래|줘)/.test(cleanCommand) || cleanCommand === '아무거나') {
                 const item = MENU_DATA.find(i => i.name === '불고기버거');
                 openSeniorModal(item, 1);
@@ -450,12 +425,10 @@
                 return;
             }
 
-            // [6. 직원 호출 감지]
             if (/(직원|사람|도와줄|매니저|사장).*(불러|없어|도와|와봐|오라고)/.test(cleanCommand) || cleanCommand.includes('직원 호출')) {
                 openStaffCallModal(); return;
             }
 
-            // [7. 가격 문의 (총액)]
             if (/(총|전부|다해서|다\s*해서|장바구니|결제).*(얼마|얼마야|얼마지)/.test(cleanCommand)) {
                 if (cart.length === 0) {
                     speakFeedback("현재 장바구니가 비어있습니다. 고르신 음식이 없습니다."); return;
@@ -465,8 +438,6 @@
                 speakFeedback(`현재 장바구니에 담긴 총 금액은 ${total.toLocaleString()}원 입니다.`);
                 return;
             }
-
-            // [8. 가격 문의 (단일)]
             if (/(얼마|얼마야|얼마지)/.test(cleanCommand)) {
                 const mentionedItem = MENU_DATA.find(item => item.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(item.name));
                 if (mentionedItem) {
@@ -478,7 +449,6 @@
                 return;
             }
 
-            // [9. 상위 범주 카테고리 전환]
             if (/(햄버거|버거|빵|요깃거리).*(먹을래|어딨어|보여줘|줘|어디|하나|두개)/.test(cleanCommand) || cleanCommand === '버거' || cleanCommand === '햄버거') {
                 filterCategory('버거');
                 const specificMatch = MENU_DATA.find(i => i.category==='버거' && (i.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(i.name)));
@@ -495,7 +465,6 @@
                 }
             }
 
-            // [10. 결제 진행]
             if (/(결제|계산|주문\s*완료|완료해|돈\s*내|살게|살래|다\s*골랐어)/.test(cleanCommand)) {
                 if (cart.length === 0) {
                     showTemporaryFeedback('장바구니가 비어 있습니다.'); speakFeedback('장바구니가 비어 있어 결제할 수 없습니다.'); return;
@@ -503,16 +472,14 @@
                 openCheckoutOptionModal(); return;
             }
 
-            // [11. 상품 담기 큐 추출] (예: 빅맥 두개 비프 하나)
             const extractedItems = extractItemsFromCommand(cleanCommand);
             if (extractedItems.length > 0) {
-                if (currentActiveModal === 'itemAdd') { closeSeniorModal(true); } // 이전 모달 스킵
+                if (currentActiveModal === 'itemAdd') { closeSeniorModal(true); } 
                 extractedItems.forEach(order => pendingOrderQueue.push(order));
                 processPendingQueue();
                 return;
             }
 
-            // [12. 도움말 Fallback]
             if (/(뭐야|무슨|어떤|뜻|어떻게|도와줘|알려줘)/.test(cleanCommand)) {
                 askDictionary('이런게뭐야'); return;
             }
@@ -521,7 +488,6 @@
             speakFeedback('다시 한번 명확히 말씀해 주세요.');
         }
 
-        // 수량 파싱 엔진
         function extractItemsFromCommand(command) {
             let results = [];
             MENU_DATA.forEach(item => {
@@ -568,7 +534,6 @@
             }
         }
 
-        // 모달창 컨트롤러
         function openSeniorModal(item, qty = 1) {
             currentActiveModal = 'itemAdd';
             selectedModalItem = item; 
@@ -679,7 +644,6 @@
             executeCheckout(type);
         }
 
-        // UI 렌더링
         function renderMenu() {
             const grid = document.getElementById('menu-grid'); grid.innerHTML = '';
             const filtered = activeCategory === '전체' ? MENU_DATA : MENU_DATA.filter(item => item.category === activeCategory);
