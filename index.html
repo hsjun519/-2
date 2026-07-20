@@ -19,7 +19,6 @@
 
     <div id="app" class="h-full w-full relative">
         
-        <!-- 🌟 [화면 1] 대기 화면 (터치하여 시작) -->
         <div id="view-welcome" class="view-screen h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-950 cursor-pointer transition-opacity duration-300 relative" onclick="startKiosk()">
             <div class="absolute inset-0 opacity-20 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=1000');"></div>
             
@@ -39,10 +38,8 @@
             <div class="absolute bottom-8 text-slate-400 text-lg">마이크에 대고 편하게 말씀하시면 인공지능이 도와드립니다.</div>
         </div>
 
-        <!-- 🌟 [화면 2] 메인 주문 레이아웃 -->
         <div id="view-main" class="view-screen hidden h-full flex bg-slate-100 relative">
             
-            <!-- [좌측] 카테고리 사이드바 -->
             <div class="w-[15%] bg-slate-900 flex flex-col items-center py-6 shadow-xl z-20 border-r border-slate-800">
                 <div class="mb-8 text-center cursor-pointer" onclick="navigate('welcome')">
                     <span class="text-yellow-400 text-sm font-black tracking-widest block mb-1">HAPPY</span>
@@ -55,7 +52,6 @@
                 </button>
             </div>
 
-            <!-- [중앙] 메뉴 및 음성 인터페이스 -->
             <div class="w-[55%] flex flex-col h-full bg-slate-50 relative z-10">
                 <div class="p-4 bg-white border-b-4 border-blue-500 shadow-sm flex items-center justify-between">
                     <button id="btn-listen" onclick="toggleListening()" class="flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all active:scale-95">
@@ -93,9 +89,9 @@
                 </div>
 
                 <div class="mx-4 mt-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex gap-2 overflow-x-auto no-scrollbar items-center">
-                    <span class="bg-blue-600 text-white px-2 py-1 rounded font-bold text-sm shrink-0">💡 음성 도움말</span>
-                    <button onclick="askDictionary('이런게뭐야')" class="text-blue-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-blue-100 hover:bg-blue-100">❓ "이런게 뭐야?"</button>
-                    <button onclick="askDictionary('취소')" class="text-rose-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-rose-100 hover:bg-rose-50">↩️ "방금 거 취소"</button>
+                    <span class="bg-blue-600 text-white px-2 py-1 rounded font-bold text-sm shrink-0">💡 메뉴 정보 묻기</span>
+                    <button onclick="askDictionary('이런게뭐야')" class="text-blue-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-blue-100 hover:bg-blue-100">❓ "콰트로가 뭐야?"</button>
+                    <button onclick="askDictionary('취소')" class="text-rose-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-rose-100 hover:bg-rose-50">↩️ "방금 거 취소해 줘"</button>
                     <button onclick="askDictionary('세트')" class="text-amber-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-amber-100 hover:bg-amber-50">🍔 "세트가 뭐야?"</button>
                     <button onclick="askDictionary('테이크아웃')" class="text-emerald-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-emerald-100 hover:bg-emerald-50">🛍️ "테이크아웃이 뭐야?"</button>
                 </div>
@@ -105,7 +101,6 @@
                 </div>
             </div>
             
-            <!-- [우측] 장바구니 패널 -->
             <div class="w-[30%] h-full bg-white flex flex-col border-l border-slate-200 shadow-[20px_0_40px_rgba(0,0,0,0.15)] relative z-30">
                 <div class="p-5 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
                     <div class="flex items-center gap-2">
@@ -127,7 +122,7 @@
                             <span class="text-xl font-bold text-slate-800">원</span>
                         </div>
                     </div>
-                    <button id="btn-checkout" onclick="handleCheckout()" class="w-full bg-rose-500 hover:bg-rose-600 text-white py-5 rounded-2xl text-2xl font-black shadow-lg shadow-rose-500/20 active:scale-98 transition-all flex justify-center items-center gap-3 disabled:bg-slate-300 disabled:shadow-none" disabled>
+                    <button id="btn-checkout" onclick="openCheckoutOptionModal()" class="w-full bg-rose-500 hover:bg-rose-600 text-white py-5 rounded-2xl text-2xl font-black shadow-lg shadow-rose-500/20 active:scale-98 transition-all flex justify-center items-center gap-3 disabled:bg-slate-300 disabled:shadow-none" disabled>
                         <span>결제 진행하기</span>
                         <i class="fas fa-credit-card text-2xl"></i>
                     </button>
@@ -135,7 +130,6 @@
             </div>
         </div>
 
-        <!-- 🌟 [화면 3] 카드 / 현금 결제수단 화면 -->
         <div id="view-checkout" class="view-screen hidden h-full flex flex-col bg-slate-50 relative z-40">
             <header class="bg-slate-900 text-white p-5 shadow-md flex justify-between items-center">
                 <h2 class="text-2xl font-black">신용카드 / 현금 결제</h2>
@@ -158,7 +152,6 @@
             </div>
         </div>
 
-        <!-- 🌟 [화면 4] 결제 완료 화면 -->
         <div id="view-done" class="view-screen hidden h-full flex flex-col items-center justify-center bg-blue-600 text-white z-50">
             <div class="bg-white text-blue-600 rounded-full w-40 h-40 flex items-center justify-center mb-8 shadow-2xl">
                 <i class="fas fa-check text-[5.5rem] animate-[scaleIn_0.4s_ease-out]"></i>
@@ -179,7 +172,6 @@
             </style>
         </div>
 
-        <!-- 🌟 [모달 1] 아이템 담기 대화형 확인 모달 -->
         <div id="senior-explain-modal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
             <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl border-4 border-blue-500 overflow-hidden flex flex-col transform scale-100">
                 <div class="flex justify-between items-center mb-6 pb-6 border-b-2 border-slate-100">
@@ -197,13 +189,12 @@
                 
                 <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-6 text-center shadow-inner">
                     <p class="text-2xl font-black text-blue-900 mb-2" id="modal-ai-question">따뜻한 아메리카노 레귤러 1잔, 담을까요?</p>
-                    <p class="text-blue-700 font-bold text-lg">"응", "시원하게", "라지로 줘" 라고 편하게 말씀하세요!</p>
+                    <p class="text-blue-700 font-bold text-lg">"응 담아줘", "두 개 줘", "라지로 바꿔" 라고 편하게 말씀하세요!</p>
                     <div class="mt-4 text-4xl font-black text-rose-600 border-t border-blue-200 pt-4">
                         총 <span id="modal-total-price">0</span>원
                     </div>
                 </div>
 
-                <!-- 세트/단품 옵션 (버거류) -->
                 <div id="set-option-container" class="flex gap-4 mb-4 hidden">
                     <button id="btn-option-single" onclick="toggleSetMenu(false)" class="flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-900 transition-all flex flex-col items-center gap-1 shadow-md">
                         <i class="fas fa-hamburger text-2xl"></i> 단품 (버거만)
@@ -213,7 +204,6 @@
                     </button>
                 </div>
 
-                <!-- 온도 옵션 (음료류) -->
                 <div id="temp-option-container" class="flex gap-4 mb-4 hidden">
                     <button id="btn-temp-hot" onclick="changeModalTemp('HOT')" class="flex-1 py-4 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-xl text-rose-700 shadow-md flex items-center justify-center gap-2 transition-all">
                         <i class="fas fa-mug-hot"></i> 따뜻하게 (HOT)
@@ -223,7 +213,6 @@
                     </button>
                 </div>
 
-                <!-- 사이즈 옵션 (음료류) -->
                 <div id="size-option-container" class="flex gap-4 mb-5 hidden">
                     <button id="btn-size-regular" onclick="changeModalSize('REGULAR')" class="flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-800 shadow-md flex items-center justify-center gap-2 transition-all">
                         보통 (레귤러)
@@ -249,7 +238,6 @@
             </div>
         </div>
 
-        <!-- 🌟 [모달 2] 매장/포장 선택 모달 -->
         <div id="checkout-option-modal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
             <div class="bg-white rounded-3xl p-10 max-w-2xl w-full shadow-2xl border-4 border-rose-500 text-center">
                 <h3 class="text-4xl font-black text-slate-900 mb-4">어디서 드시겠습니까?</h3>
@@ -259,14 +247,13 @@
                         <i class="fas fa-store text-6xl"></i> 먹고 가기 (매장)
                     </button>
                     <button onclick="finishOrderType('테이크아웃')" class="py-12 bg-blue-50 border-2 border-blue-400 hover:bg-blue-100 text-blue-900 font-black text-3xl rounded-3xl flex flex-col items-center gap-4 shadow-md transition-all active:scale-95">
-                        <i class="fas fa-shopping-bag text-6xl"></i> 포장 하기 (가져감)
+                        <i class="fas fa-shopping-bag text-6xl"></i> 포장 하기 (테이크아웃)
                     </button>
                 </div>
                 <button onclick="closeCheckoutOptionModal()" class="w-full py-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black text-xl rounded-2xl transition-all">결제 취소하고 돌아가기</button>
             </div>
         </div>
 
-        <!-- 🌟 [모달 3] 직원 호출 모달 -->
         <div id="staff-call-modal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
             <div class="bg-white rounded-3xl p-10 max-w-md w-full shadow-2xl border-4 border-rose-500 text-center">
                 <div class="text-8xl mb-6 text-rose-500"><i class="fas fa-concierge-bell animate-bounce"></i></div>
@@ -285,7 +272,6 @@
     </div>
 
     <script>
-        // 1. 카페 메뉴 데이터
         const CATEGORIES = [
             { id: 'burger', name: '햄버거', icon: '🍔' },
             { id: 'side', name: '간식/사이드', icon: '🍟' },
@@ -300,22 +286,20 @@
             { id: 'bulgogi', name: '불고기버거', price: 4500, img: 'https://images.unsplash.com/photo-1594212691516-7463f848be42?auto=format&fit=crop&q=80&w=400', icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '달콤한 간장소스 햄버거', description: '달콤한 불고기 양념 고기가 들어간 부드러운 햄버거입니다.', keywords: ['불고기', '불고기버거', '불고기 버거'] },
             { id: 'cookie', name: '청크 초코 쿠키', price: 2500, img: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&q=80&w=400', icon: '🍪', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '초콜릿 과자', description: '달콤한 초콜릿 알맹이가 박혀 있는 바삭한 과자입니다.', keywords: ['청크', '초코쿠키', '쿠키', '과자', '초콜릿', '단거'] },
             { id: 'cheese_stick', name: '디핑 치즈스틱', price: 3000, img: 'https://images.unsplash.com/photo-1536510233921-8e5043fce771?auto=format&fit=crop&q=80&w=400', icon: '🥖', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '치즈 통밀빵', description: '치즈를 튀겨내 양념에 찍어 먹는 간식입니다.', keywords: ['치즈스틱', '스틱', '디핑', '치즈 튀김'] },
-            { id: 'americano', name: '아메리카노', price: 2500, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=400', icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '쓴 커피', description: '가장 많이 찾으시는 기본 커피입니다.', keywords: ['아메리카노', '아메', '블랙커피', '쓴커피', '커피'] },
+            { id: 'americano', name: '아메리카노', price: 2500, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=400', icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '기본 커피', description: '가장 많이 찾으시는 기본 블랙 커피입니다.', keywords: ['아메리카노', '아메', '블랙커피', '쓴커피', '커피'] },
             { id: 'decaf', name: '디카페인 아메리카노', price: 3500, img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=400', icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: false, translation: '잠 잘오는 순한 커피', description: '카페인을 빼서 밤에 드셔도 속이 편안하고 잠이 잘 옵니다.', keywords: ['디카페인', '순한 커피', '잠 잘오는 커피', '안 쓴 커피'] },
             { id: 'vanilla', name: '바닐라라떼', price: 3500, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=400', icon: '🍯', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '달달한 커피', description: '우유와 달콤한 바닐라 향이 들어간 커피입니다.', keywords: ['바닐라라떼', '바닐라', '단커피', '달달한거', '달달한커피', '단 거'] },
-            { id: 'grapefruit', name: '자몽 에이드', price: 4000, img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400', icon: '🍹', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '톡 쏘는 과일 음료', description: '상큼한 자몽과 탄산수를 섞어 만든 시원한 음료입니다.', keywords: ['에이드', '자몽에이드', '자몽', '과일 음료'] },
-            { id: 'cider', name: '사이다', price: 1500, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400', icon: '🥤', category: 'coffee', setOption: false, tempOption: false, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '맑은 탄산음료', description: '시원하고 톡 쏘는 투명한 음료입니다.', keywords: ['사이다', '스프라이트', '투명한 음료', '탄산', '음료수'] }
+            { id: 'grapefruit', name: '자몽 에이드', price: 4000, img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400', icon: '🍹', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '톡 쏘는 과일 음료', description: '상큼한 자몽과 탄산수를 섞어 만든 시원한 과일 음료입니다.', keywords: ['에이드', '자몽에이드', '자몽', '과일 음료'] },
+            { id: 'cider', name: '사이다', price: 1500, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400', icon: '🥤', category: 'coffee', setOption: false, tempOption: false, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '맑은 탄산음료', description: '시원하고 톡 쏘는 투명한 탄산 음료입니다.', keywords: ['사이다', '스프라이트', '투명한 음료', '탄산', '음료수'] }
         ];
 
         const SENIOR_DICTIONARY = {
-            '이런게뭐야': "잘 모르시거나 어려운 용어가 있다면 화면 속 메뉴를 누르거나 저에게 편하게 물어봐 주세요.",
+            '이런게뭐야': "잘 모르시거나 어려운 용어가 있다면 저에게 편하게 물어봐 주세요. 친절히 가르쳐 드릴게요.",
             '세트': "세트 메뉴는 햄버거에 감자튀김과 시원한 음료수까지 묶어서 3000원만 더 내고 싸게 드리는 구성입니다.",
             '사이즈': "레귤러는 보통 크기 컵이고, 라지는 양을 많이 드시는 분들을 위해 1000원을 더 내고 아주 큰 컵으로 바꾸는 기능입니다.",
-            '테이크아웃': "테이크아웃이나 포장은 매장에서 드시지 않고 밖으로 가져가실 수 있게 봉투에 담아드리는 것입니다.",
-            '취소': "주문 중 실수를 하셨다면 '방금 거 취소' 혹은 '잘못 담았어'라고 말씀해 주세요. 즉시 되돌려 드립니다."
+            '테이크아웃': "테이크아웃이나 포장은 매장에서 드시지 않고 밖으로 가져가실 수 있게 봉투에 담아드리는 것입니다."
         };
 
-        // 앱 상태 변수
         let cart = []; 
         let activeCategory = 'burger'; 
         let currentView = 'welcome';
@@ -341,7 +325,7 @@
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.lang = 'ko-KR';
-            recognition.interimResults = true; // 🌟 실시간 인식
+            recognition.interimResults = true; 
             recognition.maxAlternatives = 1;
             recognition.continuous = false; 
 
@@ -366,7 +350,6 @@
 
             recognition.onend = () => {
                 isListening = false; updateListeningUI();
-                // 🌟 초창기 버전의 안전한 300ms 재가동 루프
                 if (shouldRestartRecognition) {
                     setTimeout(() => { try { if(shouldRestartRecognition) recognition.start(); } catch (e) {} }, 300);
                 } else {
@@ -375,7 +358,6 @@
             };
         }
 
-        // 🔊 고성능 효과음
         function playChime() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -407,15 +389,13 @@
             } catch (e) {}
         }
 
-        // 🌟 음성 출력 중 사용자 말 끊기(인터럽트)를 위해 마이크를 정지하지 않음
         function speakFeedback(text) {
             if (isTtsMuted) return;
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // 🌟 말하는 도중에도 바로 인식 가능하게 끊어버림
+                window.speechSynthesis.cancel(); 
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ko-KR';
                 utterance.rate = 0.95; 
-                // 기존에는 마이크를 껐으나, 이제는 계속 열어둡니다.
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -435,13 +415,6 @@
             }
         }
 
-        function ensureListening() {
-            shouldRestartRecognition = true;
-            if (!isListening && recognition) {
-                try { recognition.start(); } catch(e) {}
-            }
-        }
-
         function updateListeningUI() {
             const btn = document.getElementById('btn-listen');
             const status = document.getElementById('listen-status');
@@ -451,19 +424,19 @@
             const ind = document.getElementById('listening-indicator');
             
             if (isListening || shouldRestartRecognition) {
-                btn.className = "flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all scale-[1.02] shadow-blue-500/30";
-                iconBg.className = "bg-white text-blue-600 rounded-full w-12 h-12 flex items-center justify-center shadow-inner";
-                icon.className = "fas fa-microphone text-2xl animate-bounce";
+                btn.className = "flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all scale-[1.02] shadow-blue-500/30";
+                iconBg.className = "bg-white text-blue-600 rounded-full w-14 h-14 flex items-center justify-center shadow-inner";
+                icon.className = "fas fa-microphone text-3xl animate-bounce";
                 status.innerText = "어르신 말씀 듣고 있어요";
-                status.className = "text-xs text-blue-200 font-bold block";
+                status.className = "text-sm text-blue-200 font-bold block mb-1";
                 text.innerText = "마이크 켜짐";
                 ind.classList.remove('hidden');
             } else {
-                btn.className = "flex-1 max-w-[85%] bg-white border-2 border-amber-400 text-amber-900 px-6 py-4 rounded-2xl shadow-sm flex items-center justify-between transition-all hover:bg-amber-50";
-                iconBg.className = "bg-amber-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-inner";
-                icon.className = "fas fa-microphone text-2xl";
+                btn.className = "flex-1 max-w-[85%] bg-white border-4 border-amber-400 text-amber-900 px-6 py-4 rounded-2xl shadow-sm flex items-center justify-between transition-all hover:bg-amber-50";
+                iconBg.className = "bg-amber-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-inner";
+                icon.className = "fas fa-microphone text-3xl";
                 status.innerText = "마이크가 꺼져있습니다";
-                status.className = "text-xs text-amber-700 font-bold block";
+                status.className = "text-sm text-amber-700 font-bold block mb-1";
                 text.innerText = "버튼을 눌러 음성 켜기";
                 ind.classList.add('hidden');
             }
@@ -471,27 +444,34 @@
 
         function askDictionary(key) {
             if(key === '추천') { processVoiceCommand('아무거나 하나 줘'); return; }
+            if(key === '취소') { processVoiceCommand('방금 거 취소'); return; }
             const answer = SENIOR_DICTIONARY[key];
             if (answer) { showTemporaryFeedback(answer); speakFeedback(answer); }
         }
 
-        // 🌟 통합 음성 사령탑
         function processVoiceCommand(command) {
             const cleanCommand = command.trim();
-            window.speechSynthesis.cancel(); // 🌟 어르신이 말씀하시면 기계는 즉시 입을 다물고 명령을 수행합니다.
+            window.speechSynthesis.cancel(); 
 
-            // [0. 공통 영어 방어 및 공통 사전 응답]
-            if (/(테이크\s*아웃|테이크|포장|take\s*out|take|가져)/i.test(cleanCommand) && /(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
-                showTemporaryFeedback(SENIOR_DICTIONARY['테이크아웃']); speakFeedback(SENIOR_DICTIONARY['테이크아웃']); return;
-            }
-            if (/(세트|콤보).*(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
-                showTemporaryFeedback(SENIOR_DICTIONARY['세트']); speakFeedback(SENIOR_DICTIONARY['세트']); return;
-            }
-            if (/(사이즈|레귤러|라지).*(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
-                showTemporaryFeedback(SENIOR_DICTIONARY['사이즈']); speakFeedback(SENIOR_DICTIONARY['사이즈']); return;
+            // 메뉴 설명
+            if (/(뭐야|뭐여|무슨|뜻|설명)/.test(cleanCommand)) {
+                const mentionedItem = MENU_ITEMS.find(item => item.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(item.name));
+                if (mentionedItem) {
+                    showTemporaryFeedback(`${mentionedItem.name}: ${mentionedItem.description}`);
+                    speakFeedback(`${mentionedItem.name}은 ${mentionedItem.description}`);
+                    return;
+                }
+                if (/(테이크\s*아웃|테이크|포장|take\s*out|take|가져)/i.test(cleanCommand)) {
+                    showTemporaryFeedback(SENIOR_DICTIONARY['테이크아웃']); speakFeedback(SENIOR_DICTIONARY['테이크아웃']); return;
+                }
+                if (/(세트|콤보)/.test(cleanCommand)) {
+                    showTemporaryFeedback(SENIOR_DICTIONARY['세트']); speakFeedback(SENIOR_DICTIONARY['세트']); return;
+                }
+                if (/(사이즈|레귤러|라지)/.test(cleanCommand)) {
+                    showTemporaryFeedback(SENIOR_DICTIONARY['사이즈']); speakFeedback(SENIOR_DICTIONARY['사이즈']); return;
+                }
             }
 
-            // [1. 직원 호출 대기중 응답]
             if (currentActiveModal === 'staffCall') {
                 if (/(응|어|그래|불러|해줘|맞아|네|예|좋아)/.test(cleanCommand)) {
                     confirmStaffCall(); return;
@@ -500,7 +480,6 @@
                 }
             }
             
-            // [2. 결제방식 (매장/포장) 대기중 응답]
             if (currentActiveModal === 'checkoutOption') {
                 if (/(매장|먹고|식사|안에서)/.test(cleanCommand)) {
                     finishOrderType('매장 식사'); return;
@@ -511,7 +490,6 @@
                 }
             }
 
-            // [3. 카드/현금 결제 대기중 응답]
             if (currentView === 'checkout') {
                 if (/(카드|신용|체크|카드로)/.test(cleanCommand)) {
                     processPayment('카드'); return;
@@ -522,11 +500,9 @@
                 }
             }
 
-            // [4. 아이템 담기 모달 대기중 응답]
             if (currentActiveModal === 'itemAdd') {
                 let actionTriggered = false;
                 
-                // 수량 조절
                 const qtyMatch = parseStandaloneQuantity(cleanCommand);
                 if (qtyMatch !== null) {
                     currentModalQty = qtyMatch;
@@ -534,25 +510,22 @@
                     actionTriggered = true;
                 }
                 
-                // 세트 옵션
                 if (selectedModalItem.setOption) {
                     if (/(세트|세트로)/.test(cleanCommand)) { toggleSetMenu(true, true); actionTriggered = true; } 
                     else if (/(단품|버거만|그냥)/.test(cleanCommand)) { toggleSetMenu(false, true); actionTriggered = true; }
                 }
 
-                // 온도 옵션
                 if (selectedModalItem.tempOption) {
                     if (/(아이스|시원|차갑|얼음|냉)/.test(cleanCommand)) { changeModalTemp('ICE', true); actionTriggered = true; } 
                     else if (/(핫|따뜻|뜨겁|온)/.test(cleanCommand)) { changeModalTemp('HOT', true); actionTriggered = true; }
                 }
 
-                // 사이즈 옵션
                 if (selectedModalItem.sizeOption) {
                     if (/(라지|큰|많이)/.test(cleanCommand)) { changeModalSize('LARGE', true); actionTriggered = true; }
                     else if (/(레귤러|보통|작은)/.test(cleanCommand)) { changeModalSize('REGULAR', true); actionTriggered = true; }
                 }
 
-                if (/(응|어|그래|담아|담을래|해줘|맞아|네|예|좋아|추가)/.test(cleanCommand)) {
+                if (/(응|어|그래|담아|담을래|해줘|맞아|네|예|좋아|추가|줘|할래)/.test(cleanCommand)) {
                     addModalItemToCart(); return;
                 } else if (/(아니|담지마|취소|됐어|싫어|빼|아니요|아뇨)/.test(cleanCommand)) {
                     closeSeniorModal(); speakFeedback("네, 취소했습니다."); return;
@@ -562,27 +535,25 @@
                     let msg = `${currentModalQty}개. `;
                     if(selectedModalItem.setOption) msg += currentModalSet ? '세트로. ' : '단품으로. ';
                     if(selectedModalItem.tempOption) msg += currentModalTemp === 'HOT' ? '따뜻하게. ' : '시원하게. ';
-                    if(selectedModalItem.sizeOption) msg += currentModalSize === 'LARGE' ? '라지 사이즈로. ' : '보통 사이즈로. ';
-                    msg += '맞췄습니다. 이대로 담을까요?';
+                    if(selectedModalItem.sizeOption) msg += currentModalSize === 'LARGE' ? '라지 사이즈로. ' : '보통 컵으로. ';
+                    msg += '이대로 담을까요?';
                     speakFeedback(msg);
                     return;
                 }
             }
 
-            // [5. 실행 취소 (Undo)]
             if (/(취소\s*해\s*줘|취소해줘|방금\s*거\s*취소|잘못\s*담았어|그거\s*빼줘|방금거\s*취소|아니\s*취소|아차\s*잘못|이거\s*아니야|^취소$|^취소해$)/.test(cleanCommand)) {
                 if (lastAddedItems.length > 0) {
                     const last = lastAddedItems.pop();
                     subtractFromCart(last.item.id, last.temp, last.size, last.isSet, last.qty);
                     showTemporaryFeedback(`방금 담으신 메뉴 취소 완료`);
-                    speakFeedback("방금 선택하신 음료를 지웠습니다. 걱정하지 마세요.");
+                    speakFeedback("방금 선택하신 메뉴를 지웠습니다.");
                 } else {
                     speakFeedback("최근 지울 주문 내역이 없습니다.");
                 }
                 return;
             }
 
-            // [6. 메뉴 추천 ("아무거나", "간단하게")]
             if (/(간단하게|간단\s*하게|가볍게|아무거나).*(먹을|할래|줘|마실|커피)/.test(cleanCommand) || cleanCommand === '아무거나') {
                 const item = MENU_ITEMS.find(i => i.id === 'bulgogi');
                 openSeniorModal(item, 1, null, null, false);
@@ -596,12 +567,10 @@
                 return;
             }
 
-            // [7. 직원 호출 감지]
             if (/(직원|사람|도와줄|매니저|사장).*(불러|없어|도와|와봐|오라고)/.test(cleanCommand) || cleanCommand.includes('직원 호출')) {
                 openStaffCallModal(); return;
             }
 
-            // [8. 가격 문의]
             if (/(총|전부|다해서|다\s*해서|장바구니|결제).*(얼마|얼마야|얼마지)/.test(cleanCommand)) {
                 if (cart.length === 0) { speakFeedback("현재 장바구니가 비어있습니다."); return; }
                 const total = calculateTotal();
@@ -619,7 +588,6 @@
                 return;
             }
 
-            // [9. 상위 카테고리 전환]
             if (/(햄버거|버거|빵|요깃거리).*(보여줘|줘|어디)/.test(cleanCommand) || cleanCommand === '버거' || cleanCommand === '햄버거') {
                 filterCategory('burger');
                 const specificMatch = MENU_ITEMS.find(i => i.category==='burger' && (i.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(i.name)));
@@ -630,13 +598,16 @@
                 const specificMatch = MENU_ITEMS.find(i => i.category==='coffee' && (i.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(i.name)));
                 if (!specificMatch) { speakFeedback("커피 종류를 화면에 띄워드렸습니다."); return; }
             }
+            if (/(차|티|음료).*(보여줘|줘|어디)/.test(cleanCommand) || cleanCommand === '차' || cleanCommand === '전통차') {
+                filterCategory('tea');
+                const specificMatch = MENU_ITEMS.find(i => i.category==='tea' && (i.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(i.name)));
+                if (!specificMatch) { speakFeedback("전통차와 음료 종류를 띄워드렸습니다."); return; }
+            }
 
-            // [10. 결제 진행 진입]
             if (/(결제|계산|주문\s*완료|완료해|돈\s*내|살게|살래|다\s*골랐어)/.test(cleanCommand)) {
                 handleCheckout(); return;
             }
 
-            // [11. 상품 담기 큐 추출]
             const extractedItems = extractItemsFromCommand(cleanCommand);
             if (extractedItems.length > 0) {
                 if (currentActiveModal === 'itemAdd') { closeSeniorModal(true); } 
@@ -645,7 +616,6 @@
                 return;
             }
 
-            // [12. 일반 사전]
             if (/(뭐야|무슨|어떤|뜻|어떻게|도와줘|알려줘)/.test(cleanCommand)) {
                 askDictionary('이런게뭐야'); return;
             }
@@ -656,36 +626,42 @@
 
         function extractItemsFromCommand(command) {
             let results = [];
+            let consumedCommand = command;
+            
+            let allKeywords = [];
             MENU_ITEMS.forEach(item => {
-                let bestMatch = null; let earliestIdx = 9999;
-                item.keywords.forEach(kw => {
-                    const idx = command.indexOf(kw);
-                    if (idx !== -1 && idx < earliestIdx) { earliestIdx = idx; bestMatch = kw; }
-                });
-                if (command.includes(item.name)) {
-                    const idx = command.indexOf(item.name);
-                    if (idx !== -1 && idx < earliestIdx) { earliestIdx = idx; bestMatch = item.name; }
-                }
-                if (bestMatch) {
-                    const qty = parseAdvancedQuantity(command, earliestIdx, bestMatch);
-                    
-                    let temp = item.defaultTemp;
-                    let size = 'REGULAR';
-                    let isSet = false;
-                    const contextPrefix = command.substring(Math.max(0, earliestIdx - 10), earliestIdx + bestMatch.length + 10);
-                    
-                    if (item.tempOption) {
-                        if (/(아이스|시원|차갑|냉|얼음)/.test(contextPrefix) || /(아이스|시원|차갑|냉|얼음)/.test(command)) temp = 'ICE';
-                        else if (/(핫|따뜻|뜨겁|온)/.test(contextPrefix) || /(핫|따뜻|뜨겁|온)/.test(command)) temp = 'HOT';
-                    }
-                    if (item.sizeOption) {
-                        if (/(라지|큰|많이)/.test(contextPrefix) || /(라지|큰|많이)/.test(command)) size = 'LARGE';
-                    }
-                    if (item.setOption) {
-                        if (/(세트|세트로)/.test(contextPrefix) || /(세트|세트로)/.test(command)) isSet = true;
-                    }
+                item.keywords.forEach(kw => { allKeywords.push({ kw: kw, item: item }); });
+                allKeywords.push({ kw: item.name, item: item });
+            });
+            allKeywords.sort((a, b) => b.kw.length - a.kw.length);
 
-                    results.push({ item, qty, temp, size, isSet, index: earliestIdx });
+            allKeywords.forEach(kObj => {
+                const idx = consumedCommand.indexOf(kObj.kw);
+                if (idx !== -1) {
+                    const item = kObj.item;
+                    const alreadyAdded = results.find(r => r.item.id === item.id);
+                    if (!alreadyAdded) {
+                        const originalIdx = command.indexOf(kObj.kw);
+                        const qty = parseAdvancedQuantity(command, originalIdx, kObj.kw);
+                        let temp = item.defaultTemp;
+                        let size = 'REGULAR';
+                        let isSet = false;
+                        const contextPrefix = command.substring(Math.max(0, originalIdx - 10), originalIdx + kObj.kw.length + 10);
+                        
+                        if (item.tempOption) {
+                            if (/(아이스|시원|차갑|냉|얼음)/.test(contextPrefix) || /(아이스|시원|차갑|냉|얼음)/.test(command)) temp = 'ICE';
+                            else if (/(핫|따뜻|뜨겁|온)/.test(contextPrefix) || /(핫|따뜻|뜨겁|온)/.test(command)) temp = 'HOT';
+                        }
+                        if (item.sizeOption) {
+                            if (/(라지|큰|많이)/.test(contextPrefix) || /(라지|큰|많이)/.test(command)) size = 'LARGE';
+                        }
+                        if (item.setOption) {
+                            if (/(세트|세트로)/.test(contextPrefix) || /(세트|세트로)/.test(command)) isSet = true;
+                        }
+
+                        results.push({ item, qty, temp, size, isSet, index: originalIdx });
+                    }
+                    consumedCommand = consumedCommand.replace(kObj.kw, ' '.repeat(kObj.kw.length));
                 }
             });
             results.sort((a, b) => a.index - b.index); 
@@ -717,7 +693,6 @@
             }
         }
 
-        // 모달창 컨트롤러
         function openSeniorModal(item, qty = 1, temp = null, size = null, isSet = false) {
             playChime();
             currentActiveModal = 'itemAdd';
@@ -758,7 +733,6 @@
 
             updateModalPriceDisplay();
             document.getElementById('senior-explain-modal').classList.remove('hidden');
-            ensureListening();
             
             let aiSpeak = "";
             if (item.tempOption) aiSpeak += currentModalTemp === 'HOT' ? '따뜻한 ' : '시원한 ';
@@ -781,12 +755,12 @@
             const btnSet = document.getElementById('btn-option-set');
             
             if (isSet) {
-                btnSet.className = "flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-900 shadow-md transform scale-105 transition-all flex flex-col items-center gap-2";
-                btnSingle.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-2";
+                btnSet.className = "flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md transform scale-105 transition-all flex flex-col items-center gap-2";
+                btnSingle.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-2";
                 document.getElementById('modal-item-name').innerText = selectedModalItem.name + " (세트)";
             } else {
-                btnSingle.className = "flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-900 shadow-md transform scale-105 transition-all flex flex-col items-center gap-2";
-                btnSet.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-2";
+                btnSingle.className = "flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md transform scale-105 transition-all flex flex-col items-center gap-2";
+                btnSet.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-2";
                 document.getElementById('modal-item-name').innerText = selectedModalItem.name;
             }
             updateModalPriceDisplay();
@@ -798,13 +772,11 @@
             currentModalTemp = temp;
             const btnHot = document.getElementById('btn-temp-hot'); const btnIce = document.getElementById('btn-temp-ice');
             if (temp === 'HOT') {
-                btnHot.className = "flex-1 py-4 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-xl text-rose-700 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnIce.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
-                document.getElementById('modal-ai-question').innerText = `🔥 따뜻한 ${selectedModalItem.name} ${currentModalQty}개, 담을까요?`;
+                btnHot.className = "flex-1 py-5 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-2xl text-rose-700 shadow-md flex items-center justify-center gap-3 transform scale-105 transition-all";
+                btnIce.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-3 transition-all";
             } else {
-                btnIce.className = "flex-1 py-4 rounded-2xl border-4 border-blue-500 bg-blue-50 font-black text-xl text-blue-700 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnHot.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
-                document.getElementById('modal-ai-question').innerText = `❄️ 시원한 ${selectedModalItem.name} ${currentModalQty}개, 담을까요?`;
+                btnIce.className = "flex-1 py-5 rounded-2xl border-4 border-blue-500 bg-blue-50 font-black text-2xl text-blue-700 shadow-md flex items-center justify-center gap-3 transform scale-105 transition-all";
+                btnHot.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-3 transition-all";
             }
             updateModalPriceDisplay();
             if(!skipSound) speakFeedback(temp === 'HOT' ? '따뜻하게' : '시원하게');
@@ -815,11 +787,11 @@
             currentModalSize = size;
             const btnReg = document.getElementById('btn-size-regular'); const btnLrg = document.getElementById('btn-size-large');
             if (size === 'REGULAR') {
-                btnReg.className = "flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-800 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnLrg.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-bold text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
+                btnReg.className = "flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
+                btnLrg.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-bold text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
             } else {
-                btnLrg.className = "flex-1 py-4 rounded-2xl border-4 border-indigo-500 bg-indigo-50 font-black text-xl text-indigo-900 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnReg.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-bold text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
+                btnLrg.className = "flex-1 py-5 rounded-2xl border-4 border-indigo-500 bg-indigo-50 font-black text-2xl text-indigo-900 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
+                btnReg.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-bold text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
             }
             updateModalPriceDisplay();
             if(!skipSound) speakFeedback(size === 'REGULAR' ? '레귤러 보통 컵' : '라지 큰 컵');
@@ -891,11 +863,9 @@
             } 
         }
 
-        // 직원 호출 모달
         function openStaffCallModal() {
             playChime(); currentActiveModal = 'staffCall';
             document.getElementById('staff-call-modal').classList.remove('hidden');
-            ensureListening();
             speakFeedback("직원을 이쪽으로 부를까요? 응, 아니오로 대답해주세요.");
         }
         function closeStaffCallModal() { playClickSound(); document.getElementById('staff-call-modal').classList.add('hidden'); currentActiveModal = null; }
@@ -905,7 +875,6 @@
             speakFeedback("직원을 호출했습니다. 잠시만 기다려주세요.");
         }
 
-        // 결제 옵션 모달
         function handleCheckout() {
             if(cart.length > 0) { playChime(); openCheckoutOptionModal(); } 
             else { playClickSound(); speakFeedback('장바구니가 비어 있습니다. 메뉴판을 눌러 상품을 담은 후 결제를 시도해 주세요.'); }
@@ -914,7 +883,6 @@
         function openCheckoutOptionModal() {
             currentActiveModal = 'checkoutOption';
             document.getElementById('checkout-option-modal').classList.remove('hidden');
-            ensureListening();
             speakFeedback("매장에서 드시고 가시겠습니까, 아니면 테이크아웃 포장하시겠습니까? 매장 혹은 포장이라고 말씀해주세요.");
         }
         function closeCheckoutOptionModal() { playClickSound(); document.getElementById('checkout-option-modal').classList.add('hidden'); currentActiveModal = null; }
@@ -934,15 +902,13 @@
             speakFeedback(`결제가 끝났습니다. 영수증 번호는 ${orderNum}번입니다. 출력되는 영수증을 꼭 챙겨주세요.`);
             cart = []; lastAddedItems = []; renderCart();
 
-            // 🌟 3초 후 첫 화면으로 자동 복귀
+            // 🌟 결제 후 3초 뒤 메인 화면 복귀
             setTimeout(() => {
                 closeReceipt();
             }, 3000);
         }
 
-        function closeReceipt() { 
-            playClickSound(); navigate('welcome'); 
-        }
+        function closeReceipt() { playClickSound(); navigate('welcome'); }
 
         function navigate(view) {
             document.querySelectorAll('.view-screen').forEach(el => el.classList.add('hidden'));
@@ -956,7 +922,6 @@
             if(view === 'main') { renderCategories(); renderMenu(); renderCart(); }
             if(view === 'checkout') { 
                 document.getElementById('checkout-final-total').innerText = calculateTotal().toLocaleString(); 
-                ensureListening();
                 speakFeedback("신용카드와 현금 중 어떤 것으로 결제하시겠습니까? 카드 혹은 현금이라고 말씀해주세요."); 
             }
         }
