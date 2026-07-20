@@ -3,401 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👴👵 어르신 안심 스마트 보이스 키오스크 (단발성 테스트)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>음성 인식 받아쓰기</title>
     <style>
-        .scrollbar-none::-webkit-scrollbar { display: none; }
-        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 500px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button.recording {
+            background-color: #dc3545;
+        }
+        button.recording:hover {
+            background-color: #bd2130;
+        }
+        #result {
+            border: 1px solid #ddd;
+            padding: 15px;
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+            text-align: left;
+            background: #fafafa;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        .placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
     </style>
 </head>
-<body class="bg-amber-50/30 m-0 p-0 select-none">
+<body>
 
-    <div id="app" class="flex flex-col h-screen overflow-hidden text-gray-900">
+<div class="container">
+    <h2>🎙️ 음성 인식 받아쓰기</h2>
+    <button id="speech-btn">음성 인식 시작</button>
+    <div id="result" class="placeholder">여기에 말한 내용이 표시됩니다.</div>
+</div>
+
+<script>
+    const speechBtn = document.getElementById('speech-btn');
+    const resultDiv = document.getElementById('result');
+
+    // 브라우저 지원 여부 확인 (Chrome, Edge 등에서 지원)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        resultDiv.innerText = "이 브라우저는 음성 인식을 지원하지 않습니다. 크롬(Chrome)이나 엣지(Edge) 브라우저를 이용해 주세요.";
+        speechBtn.disabled = true;
+    } else {
+        const recognition = new SpeechRecognition();
         
-        <div class="bg-amber-600 text-white px-4 py-3 flex justify-between items-center shrink-0 shadow-md">
-            <div class="flex items-center gap-2 text-base md:text-xl font-black">
-                <span>👵👴</span>
-                <span>어르신 안심 AI 도우미가 함께하고 있습니다</span>
-            </div>
-            <div class="bg-amber-800 p-0.5 rounded-xl flex border border-amber-700">
-                <button onclick="setAppMode('kiosk')" class="px-4 py-1.5 rounded-lg font-black bg-white text-amber-900 shadow-sm text-base">여기서 주문하기</button>
-            </div>
-        </div>
+        // 설정
+        recognition.lang = 'ko-KR';        // 인식할 언어 (한국어)
+        recognition.continuous = true;    // 말하기를 멈춰도 계속 인식하도록 설정
+        recognition.interimResults = true; // 실시간으로 인식 중인 글자 보여주기
 
-        <div id="debug-log" class="bg-red-600 text-white text-center font-bold py-2 hidden text-sm md:text-base">
-            [시스템 알림] 오류가 발생했습니다.
-        </div>
+        let isListening = false;
 
-        <div id="senior-explain-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-            <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl border-4 border-amber-500 max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex items-center gap-3">
-                        <span id="modal-item-icon" class="text-6xl">🍔</span>
-                        <div>
-                            <h3 id="modal-item-name" class="text-3xl font-black text-gray-900">메뉴 이름</h3>
-                            <span id="modal-item-translation" class="bg-amber-100 text-amber-900 text-sm font-bold px-3 py-1 rounded-full inline-block mt-1">한국어 쉬운 번역</span>
-                        </div>
-                    </div>
-                    <button onclick="closeSeniorModal()" class="text-gray-400 hover:text-gray-600 text-4xl font-bold px-2">×</button>
-                </div>
-                
-                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 my-5">
-                    <h4 class="text-lg font-black text-blue-900 mb-1">🤖 AI 도우미의 친절 설명</h4>
-                    <p id="modal-item-description" class="text-gray-800 font-bold text-xl leading-relaxed">여기에 설명</p>
-                </div>
+        // 버튼 클릭 이벤트
+        speechBtn.addEventListener('click', () => {
+            if (!isListening) {
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        });
 
-                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-200 mb-6">
-                    <span class="text-xl font-black text-gray-700">개수 선택</span>
-                    <div class="flex items-center gap-6">
-                        <button onclick="changeModalQty(-1)" class="w-14 h-14 bg-gray-200 active:bg-gray-300 text-3xl font-black rounded-full flex items-center justify-center">-</button>
-                        <span id="modal-item-qty" class="text-3xl font-black text-gray-900 w-8 text-center">1</span>
-                        <button onclick="changeModalQty(1)" class="w-14 h-14 bg-gray-200 active:bg-gray-300 text-3xl font-black rounded-full flex items-center justify-center">+</button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="closeSeniorModal()" class="py-4 bg-gray-200 text-gray-800 font-black text-xl rounded-2xl">닫기</button>
-                    <button onclick="addModalItemToCart()" class="py-4 bg-red-600 text-white font-black text-xl rounded-2xl shadow-lg">장바구니에 담기</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="receipt-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
-            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 text-center">
-                <div class="text-5xl mb-3">🎉</div>
-                <h3 class="text-2xl font-black text-gray-800">주문이 완료되었습니다!</h3>
-                <div class="bg-gray-50 my-4 p-4 rounded-xl border border-dashed border-gray-200">
-                    <div id="receipt-number" class="text-4xl font-black text-red-600">대기번호: --번</div>
-                    <div class="border-t border-gray-200 my-3"></div>
-                    <div id="receipt-items" class="text-left space-y-1 text-sm text-gray-700 max-h-36 overflow-y-auto"></div>
-                    <div class="border-t border-gray-200 my-3"></div>
-                    <div class="flex justify-between font-extrabold text-lg text-gray-900">
-                        <span>최종 금액</span>
-                        <span id="receipt-total">0원</span>
-                    </div>
-                </div>
-                <button onclick="closeReceipt()" class="w-full bg-red-600 text-white font-bold py-4 rounded-xl text-xl">확인</button>
-            </div>
-        </div>
-
-        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
-            
-            <div id="kiosk-view" class="flex-1 flex flex-col h-full overflow-hidden relative">
-                <header class="bg-amber-500 text-white p-4 shadow-md flex justify-between items-center z-10 flex-wrap gap-2">
-                    <div class="flex items-center gap-3">
-                        <span class="text-4xl">🗣️</span>
-                        <div>
-                            <h1 class="text-2xl md:text-3xl font-black tracking-tight text-amber-950">말로 편하게 하는 주문판</h1>
-                            <p class="text-sm text-amber-900 font-bold hidden sm:block">버튼을 누를 때마다 한 번씩만 귀를 기울입니다.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button id="btn-listen" onclick="toggleListening()" class="flex items-center gap-2 px-6 py-3 rounded-full font-black bg-white text-red-600 hover:bg-red-50 transition-all shadow-lg text-lg border-2 border-red-500">
-                            <span id="listening-indicator" class="relative hidden">
-                                <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                            </span>
-                            <span id="listen-icon">🎙️</span>
-                            <span id="listen-text">눌러서 한 번만 말하기</span>
-                        </button>
-                    </div>
-                </header>
-
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3.5 border-b border-blue-100 flex flex-col gap-2 shrink-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="bg-blue-600 text-white text-sm font-black px-3 py-1 rounded-lg">어르신 전용 큰 질문 버튼</span>
-                    </div>
-                    <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none text-xs md:text-sm">
-                        <button onclick="askDictionary('이런게뭐야')" class="bg-white border-2 border-blue-300 hover:border-blue-500 px-3 py-1.5 rounded-xl font-black text-blue-900 shadow-sm whitespace-nowrap">❓ "어떻게 하는지 모르겠어"</button>
-                        <button onclick="askDictionary('세트')" class="bg-white border-2 border-blue-300 hover:border-blue-500 px-3 py-1.5 rounded-xl font-black text-blue-900 shadow-sm whitespace-nowrap">🍔 "세트랑 콤보 차이가 뭐야?"</button>
-                        <button onclick="askDictionary('사이드 변경')" class="bg-white border-2 border-blue-300 hover:border-blue-500 px-3 py-1.5 rounded-xl font-black text-blue-900 shadow-sm whitespace-nowrap">🍟 "사이드 변경이 무슨 뜻이야?"</button>
-                    </div>
-                </div>
-
-                <div id="voice-feedback-area" class="mx-4 mt-4 p-4 rounded-2xl bg-white shadow-md border border-gray-100 flex flex-col gap-3 hidden animate-fade-in">
-                    <div id="transcript-row" class="flex items-center gap-2 text-gray-600 text-base hidden">
-                        <span class="w-3 h-3 rounded-full bg-green-500 animate-ping shrink-0"></span>
-                        <span class="font-black text-gray-500">어르신의 음성:</span>
-                        <span id="transcript-text" class="text-gray-900 font-black bg-gray-100 px-3 py-1 rounded-lg border"></span>
-                    </div>
-                    <div id="feedback-row" class="text-blue-600 font-bold flex items-start gap-2 hidden">
-                        <span class="text-3xl shrink-0">🤖</span> 
-                        <div class="bg-blue-600 text-white px-5 py-3 rounded-2xl border-2 border-blue-400 max-w-2xl shadow-sm">
-                            <span id="feedback-text" class="text-xl font-black leading-relaxed"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="category-tabs" class="flex gap-3 p-4 overflow-x-auto scrollbar-none shrink-0">
-                    <button onclick="filterCategory('전체')" class="category-tab px-8 py-3.5 rounded-2xl font-black text-xl bg-amber-600 text-white ring-4 ring-amber-200">전체 메뉴</button>
-                </div>
-
-                <div class="flex-1 overflow-y-auto p-4 pt-0">
-                    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-24"></div>
-                </div>
-            </div>
-
-            <div id="sidebar-cart" class="w-full md:w-[420px] bg-white shadow-2xl flex flex-col h-[40vh] md:h-full border-t-4 border-amber-500 md:border-t-0 md:border-l border-gray-100 z-10 overflow-hidden">
-                <div class="p-4 bg-amber-50 border-b border-gray-200 flex items-center justify-between shrink-0">
-                    <div class="flex items-center gap-2">
-                        <span class="text-2xl">🛒</span>
-                        <h2 class="text-xl font-black text-gray-800">내가 고른 음식</h2>
-                        <span id="cart-count-badge" class="bg-red-600 text-white px-3 py-0.5 rounded-full text-sm font-black">0개</span>
-                    </div>
-                    <button onclick="clearCart()" class="text-sm text-gray-400 font-black"><span>🔄</span> 비우기</button>
-                </div>
-                <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50"></div>
-                <div class="p-5 bg-white border-t border-gray-200 pb-10 md:pb-5 shrink-0 shadow-inner">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-lg font-black text-gray-500">총 결제 금액</span>
-                        <div class="text-right">
-                            <span id="cart-total-price" class="text-3xl font-black text-red-600">0</span>
-                            <span class="text-xl font-black text-red-600 ml-0.5">원</span>
-                        </div>
-                    </div>
-                    <button id="btn-checkout" onclick="executeCheckout()" class="w-full py-4 rounded-2xl text-2xl font-black bg-gray-200 text-gray-400 cursor-not-allowed" disabled>
-                        <span>💳</span> 주문 마치기
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const MENU_DATA = [
-            { id: 1, category: '버거', name: '콰트로치즈버거', price: 6500, icon: '🍔', translation: '네 가지 치즈 햄버거', description: "네 가지 맛있는 치즈가 들어간 햄버거입니다.", keywords: ['콰트로', '콰트로치즈', '치즈버거'] },
-            { id: 2, category: '버거', name: '쉬림프버거', price: 5500, icon: '🍤', translation: '탱글탱글 새우 햄버거', description: "통통한 새우를 바삭하게 튀긴 버거입니다.", keywords: ['쉬림프', '새우버거', '새우 버거'] },
-            { id: 3, category: '사이드', name: '청크 초코 쿠키', price: 2500, icon: '🍪', translation: '큼직한 초콜릿 과자', description: "커다란 초콜릿이 콕콕 박혀 있는 쿠키입니다.", keywords: ['청크', '초코쿠키', '쿠키'] },
-            { id: 4, category: '음료', name: '디카페인 아메리카노', price: 3500, icon: '☕', translation: '잠 잘오는 순한 커피', description: "카페인 성분을 빼서 밤에 먹어도 잠이 잘 옵니다.", keywords: ['디카페인', '커피', '아메리카노'] }
-        ];
-
-        const SENIOR_DICTIONARY = {
-            '이런게뭐야': "화면 속 메뉴를 손가락으로 누르시거나 저에게 그냥 물어봐 주세요.",
-            '세트': "세트는 햄버거에 감자튀김과 음료수를 하나로 묶어 싸게 드리는 구성입니다.",
-            '사이드 변경': "감자튀김 대신 치즈스틱이나 쿠키로 바꾸어 주문하시는 기능입니다."
+        // 음성 인식 시작 시
+        recognition.onstart = () => {
+            isListening = true;
+            speechBtn.innerText = "🛑 음성 인식 중지";
+            speechBtn.classList.add('recording');
+            if (resultDiv.classList.contains('placeholder')) {
+                resultDiv.innerText = '';
+                resultDiv.classList.remove('placeholder');
+            }
         };
 
-        let cart = []; let activeCategory = '전체';
-        let isListening = false; let isTtsMuted = false;
-        let selectedModalItem = null; let currentModalQty = 1;
-
-        let recognition = null;
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.lang = 'ko-KR';
-            recognition.interimResults = false; 
-            recognition.continuous = false; 
-
-            recognition.onstart = () => {
-                isListening = true;
-                updateListeningUI();
-                document.getElementById('debug-log').classList.add('hidden');
-                showVoiceArea(true);
-                setTranscriptText('듣고 있습니다... 말씀이 끝나면 마이크가 스스로 꺼집니다.');
-            };
-
-            recognition.onresult = (event) => {
-                const currentTranscript = event.results[0][0].transcript;
-                setTranscriptText(currentTranscript);
-                processVoiceCommand(currentTranscript);
-            };
-
-            recognition.onerror = (event) => {
-                console.log("에러 발생:", event.error);
-                isListening = false;
-                updateListeningUI();
-                
-                const debugLog = document.getElementById('debug-log');
-                debugLog.classList.remove('hidden');
-
-                if (event.error === 'not-allowed') {
-                    debugLog.innerText = "🚨 마이크 권한이 없습니다. 권한을 허용해 주세요.";
-                } else if (event.error === 'no-speech') {
-                    debugLog.innerText = "🚨 아무 말씀이 없으셔서 마이크가 꺼졌습니다. 다시 눌러주세요.";
-                } else if (event.error === 'aborted') {
-                    debugLog.innerText = "🚨 인식 서버 통신이 끊어졌습니다. 다시 눌러주세요.";
-                } else {
-                    debugLog.innerText = `🚨 오류 발생: ${event.error}`;
-                }
-            };
-
-            recognition.onend = () => {
-                isListening = false;
-                updateListeningUI();
-                setTimeout(() => { if(!isListening) showVoiceArea(false); }, 5000);
-            };
-        }
-
-        function speakFeedback(text) {
-            if (isTtsMuted) return;
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'ko-KR';
-                utterance.rate = 0.93; 
-                window.speechSynthesis.speak(utterance);
+        // 음성 인식 종료 시
+        recognition.onend = () => {
+            isListening = false;
+            speechBtn.innerText = "🎙️ 음성 인식 시작";
+            speechBtn.classList.remove('recording');
+            if (resultDiv.innerText.trim() === '') {
+                resultDiv.innerText = '여기에 말한 내용이 표시됩니다.';
+                resultDiv.classList.add('placeholder');
             }
-        }
+        };
 
-        function toggleListening() {
-            if (!recognition) { alert('음성 인식을 지원하지 않는 브라우저입니다.'); return; }
-            if (isListening) {
-                recognition.stop();
-            } else {
-                try { recognition.start(); } catch (e) { console.log(e); }
+        // 음성 인식 결과가 들어올 때
+        recognition.onresult = (event) => {
+            let combinedText = '';
+            
+            // 처음부터 현재까지 인식된 모든 결과를 합칩니다.
+            for (let i = 0; i < event.results.length; i++) {
+                combinedText += event.results[i][0].transcript + ' ';
             }
-        }
+            
+            resultDiv.innerText = combinedText;
+            // 스크롤을 항상 아래로 유지
+            resultDiv.scrollTop = resultDiv.scrollHeight;
+        };
 
-        function updateListeningUI() {
-            const btn = document.getElementById('btn-listen');
-            const text = document.getElementById('listen-text');
-            const ind = document.getElementById('listening-indicator');
-            if (isListening) {
-                btn.className = "flex items-center gap-2 px-6 py-3 rounded-full font-black bg-yellow-400 text-red-950 scale-105 border-2 border-yellow-300 shadow-yellow-400/50 transition-all text-lg";
-                text.innerText = "말씀을 듣고 있습니다...";
-                ind.classList.remove('hidden');
-            } else {
-                btn.className = "flex items-center gap-2 px-6 py-3 rounded-full font-black bg-white text-red-600 hover:bg-red-50 transition-all shadow-lg text-lg border-2 border-red-500";
-                text.innerText = "눌러서 한 번만 말하기";
-                ind.classList.add('hidden');
+        // 에러 발생 시
+        recognition.onerror = (event) => {
+            console.error("음성 인식 에러:", event.error);
+            if (event.error === 'not-allowed') {
+                alert("마이크 권한이 거부되었습니다. 주소창 옆 마이크 아이콘을 눌러 권한을 허용해 주세요.");
             }
-        }
+        };
+    }
+</script>
 
-        function askDictionary(key) {
-            const answer = SENIOR_DICTIONARY[key];
-            if (answer) { showAiResponse(answer); speakFeedback(answer); }
-        }
-
-        function processVoiceCommand(command) {
-            const cleanCommand = command.trim();
-
-            if (/(뭐야|무슨|어떤|뜻|어떻게|어려워|도와줘|알려줘)/.test(cleanCommand)) {
-                for (const key in SENIOR_DICTIONARY) {
-                    if (cleanCommand.includes(key)) {
-                        showAiResponse(SENIOR_DICTIONARY[key]); speakFeedback(SENIOR_DICTIONARY[key]); return;
-                    }
-                }
-                for (const item of MENU_DATA) {
-                    const match = item.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(item.name);
-                    if (match) { openSeniorModal(item); return; }
-                }
-                askDictionary('이런게뭐야'); return;
-            }
-
-            if (/(결제|계산|완료해|돈\s*내|살게|살래|포장)/.test(cleanCommand)) {
-                if (cart.length === 0) {
-                    showAiResponse('🛒 어르신, 아직 장바구니에 음식을 고르지 않으셨습니다.');
-                    speakFeedback('장바구니가 비어 있습니다.'); return;
-                }
-                executeCheckout(); return;
-            }
-
-            let matchedAny = false;
-            MENU_DATA.forEach(item => {
-                const isMatch = item.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(item.name);
-                if (isMatch) {
-                    matchedAny = true; addManyToCart(item, 1);
-                    showAiResponse(`🛒 '${item.name}' 1개를 담았습니다.`);
-                    speakFeedback(`${item.name} 담았습니다.`);
-                }
-            });
-
-            if (!matchedAny) {
-                showAiResponse('🤔 어르신, 잘 알아듣지 못했어요. 메뉴 이름을 정확히 말씀해 주세요.');
-                speakFeedback('한 번 더 말씀해 주세요.');
-            }
-        }
-
-        function openSeniorModal(item) {
-            selectedModalItem = item; currentModalQty = 1;
-            document.getElementById('modal-item-icon').innerText = item.icon;
-            document.getElementById('modal-item-name').innerText = item.name;
-            document.getElementById('modal-item-translation').innerText = `💡 뜻: ${item.translation}`;
-            document.getElementById('modal-item-description').innerText = item.description;
-            document.getElementById('modal-item-qty').innerText = currentModalQty;
-            document.getElementById('senior-explain-modal').classList.remove('hidden');
-            speakFeedback(`${item.name}은, ${item.description}`);
-        }
-
-        function closeSeniorModal() { document.getElementById('senior-explain-modal').classList.add('hidden'); }
-        function changeModalQty(delta) { currentModalQty += delta; if (currentModalQty < 1) currentModalQty = 1; document.getElementById('modal-item-qty').innerText = currentModalQty; }
-        function addModalItemToCart() { if (selectedModalItem) { addManyToCart(selectedModalItem, currentModalQty); speakFeedback(`${selectedModalItem.name} 담았습니다.`); closeSeniorModal(); } }
-
-        function renderMenu() {
-            const grid = document.getElementById('menu-grid'); grid.innerHTML = '';
-            MENU_DATA.forEach(item => {
-                const card = document.createElement('button');
-                card.onclick = () => openSeniorModal(item);
-                card.className = "bg-white p-6 rounded-3xl shadow-md hover:shadow-lg transition-all flex flex-col items-center justify-between gap-4 border-2 border-gray-100 active:scale-95 text-center";
-                card.innerHTML = `
-                    <div class="text-6xl">${item.icon}</div>
-                    <div>
-                        <div class="text-xl font-black text-gray-900">${item.name}</div>
-                    </div>
-                    <div class="text-xl text-red-600 font-black bg-red-50/70 w-full py-2 rounded-xl">
-                        ${item.price.toLocaleString()}원
-                    </div>`;
-                grid.appendChild(card);
-            });
-        }
-
-        function renderCart() {
-            const container = document.getElementById('cart-items-container');
-            const totalText = document.getElementById('cart-total-price');
-            const badge = document.getElementById('cart-count-badge');
-            const btnCheckout = document.getElementById('btn-checkout');
-            container.innerHTML = ''; let totalCount = 0; let totalPrice = 0;
-
-            if (cart.length === 0) {
-                btnCheckout.disabled = true; btnCheckout.className = "w-full py-4 rounded-2xl text-2xl font-black bg-gray-200 text-gray-400 cursor-not-allowed";
-            } else {
-                cart.forEach(cartItem => {
-                    totalCount += cartItem.quantity; totalPrice += cartItem.item.price * cartItem.quantity;
-                    const row = document.createElement('div');
-                    row.className = "flex justify-between items-center bg-white p-3 rounded-2xl border border-gray-200 shadow-sm animate-fade-in";
-                    row.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="text-3xl">${cartItem.item.icon}</span>
-                            <div>
-                                <div class="font-black text-gray-800 text-base">${cartItem.item.name}</div>
-                                <div class="text-red-600 text-sm font-black">${(cartItem.item.price * cartItem.quantity).toLocaleString()}원</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 bg-gray-100 px-3 py-1.5 rounded-xl">
-                            <button onclick="changeCartQty(${cartItem.item.id}, -1)" class="text-xl font-black text-gray-600 px-1">-</button>
-                            <span class="font-black text-base text-gray-900 w-4 text-center">${cartItem.quantity}</span>
-                            <button onclick="changeCartQty(${cartItem.item.id}, 1)" class="text-xl font-black text-gray-600 px-1">+</button>
-                        </div>`;
-                    container.appendChild(row);
-                });
-                btnCheckout.disabled = false; btnCheckout.className = "w-full py-4 rounded-2xl text-2xl font-black bg-red-600 text-white hover:bg-red-700 shadow-xl cursor-pointer";
-            }
-            totalText.innerText = totalPrice.toLocaleString(); badge.innerText = `${totalCount}개`;
-        }
-
-        function addManyToCart(item, qty) { const exist = cart.find(c => c.item.id === item.id); if (exist) { exist.quantity += qty; } else { cart.push({ item, quantity: qty }); } renderCart(); }
-        function changeCartQty(id, delta) { const exist = cart.find(c => c.item.id === id); if (exist) { exist.quantity += delta; if (exist.quantity <= 0) cart = cart.filter(c => c.item.id !== id); } renderCart(); }
-        function clearCart() { cart = []; renderCart(); }
-
-        function executeCheckout() {
-            if (cart.length === 0) return;
-            if (recognition) recognition.stop();
-            const orderNum = Math.floor(Math.random() * 900) + 100;
-            document.getElementById('receipt-number').innerText = `대기번호: ${orderNum}번`;
-            document.getElementById('receipt-total').innerText = `${cart.reduce((s, c) => s + (c.item.price * c.quantity), 0).toLocaleString()}원`;
-            document.getElementById('receipt-modal').classList.remove('hidden');
-            cart = []; renderCart();
-            speakFeedback(`결제가 끝났습니다. 대기번호는 ${orderNum}번입니다.`);
-        }
-
-        function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
-        function showVoiceArea(show) { const area = document.getElementById('voice-feedback-area'); if (show) area.classList.remove('hidden'); else area.classList.add('hidden'); }
-        function setTranscriptText(text) { const row = document.getElementById('transcript-row'); const span = document.getElementById('transcript-text'); if (text) { row.classList.remove('hidden'); span.innerText = text; } else { row.classList.add('hidden'); } }
-        function showAiResponse(msg) { const row = document.getElementById('feedback-row'); const span = document.getElementById('feedback-text'); showVoiceArea(true); row.classList.remove('hidden'); span.innerText = msg; }
-
-        window.onload = () => { renderMenu(); renderCart(); };
-    </script>
 </body>
 </html>
