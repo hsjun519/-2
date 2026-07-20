@@ -3,24 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>행복 카페 스마트 보이스 키오스크 (최종 완성판)</title>
+    <title>행복 카페 스마트 키오스크 (어르신 안심 최종 완성판)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; user-select: none; -webkit-user-select: none; background-color: #f8fafc; }
+        body { font-family: 'Noto Sans KR', sans-serif; user-select: none; -webkit-user-select: none; background-color: #f8fafc; overflow: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 음성 인식 웨이브 애니메이션 */
+        .wave-animation { display: flex; align-items: center; gap: 4px; }
+        .wave-bar { width: 4.5px; height: 15px; background-color: #3b82f6; border-radius: 2px; animation: wave 1.2s ease-in-out infinite; }
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+        @keyframes wave { 0%, 100% { height: 10px; } 50% { height: 35px; } }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden text-slate-800 flex flex-col">
+<body class="h-screen w-screen text-slate-800 flex flex-col">
 
     <div id="app" class="h-full w-full relative">
         
         <!-- 🌟 [화면 1] 대기 화면 (터치하여 시작) -->
-        <div id="view-welcome" class="view-screen h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-950 cursor-pointer transition-opacity duration-300 relative" onclick="startKiosk()">
+        <div id="view-welcome" class="view-screen h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-950 cursor-pointer transition-opacity duration-300 relative z-50" onclick="startKiosk()">
             <div class="absolute inset-0 opacity-20 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=1000');"></div>
             
             <div class="relative z-10 text-center flex flex-col items-center">
@@ -28,108 +36,113 @@
                 <h1 class="text-7xl font-black text-white mb-4 tracking-tight drop-shadow-lg">행복 카페</h1>
                 <p class="text-3xl text-blue-200 font-bold mb-20 drop-shadow-md">어르신 안심 스마트 음성 키오스크</p>
                 
-                <div class="bg-white rounded-3xl p-10 shadow-2xl border-4 border-blue-400 animate-bounce flex flex-col items-center w-[400px]">
+                <div class="bg-white rounded-3xl p-10 shadow-2xl border-4 border-blue-400 animate-bounce flex flex-col items-center w-[450px]">
                     <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-6">
                         <i class="fas fa-hand-pointer text-5xl text-blue-600"></i>
                     </div>
                     <p class="text-3xl font-black text-slate-900">화면을 가볍게 터치하고</p>
-                    <p class="text-2xl text-blue-600 font-bold mt-1">주문을 시작해 주세요</p>
+                    <p class="text-2xl text-blue-600 font-bold mt-2">주문을 시작해 주세요</p>
                 </div>
             </div>
-            <div class="absolute bottom-8 text-slate-400 text-lg">마이크에 대고 편하게 말씀하시면 인공지능이 도와드립니다.</div>
+            <div class="absolute bottom-8 text-slate-400 text-xl font-bold">마이크에 대고 편하게 말씀하시면 인공지능이 도와드립니다.</div>
         </div>
 
         <!-- 🌟 [화면 2] 메인 주문 레이아웃 -->
-        <div id="view-main" class="view-screen hidden h-full flex bg-slate-100 relative">
+        <div id="view-main" class="view-screen hidden h-full flex bg-slate-100 relative z-10">
             
             <!-- [좌측] 카테고리 사이드바 -->
-            <div class="w-[15%] bg-slate-900 flex flex-col items-center py-6 shadow-xl z-20 border-r border-slate-800">
-                <div class="mb-8 text-center cursor-pointer" onclick="navigate('welcome')">
+            <div class="w-[16%] bg-slate-900 flex flex-col items-center py-6 shadow-2xl z-20 border-r border-slate-800">
+                <div class="mb-10 text-center cursor-pointer" onclick="navigate('welcome')">
                     <span class="text-yellow-400 text-sm font-black tracking-widest block mb-1">HAPPY</span>
-                    <span class="text-white text-2xl font-black tracking-tighter block">CAFE</span>
+                    <span class="text-white text-3xl font-black tracking-tighter block">CAFE</span>
                 </div>
-                <div class="flex-1 w-full flex flex-col gap-4 px-3" id="category-tabs"></div>
-                <button onclick="openStaffCallModal()" class="w-4/5 bg-rose-600 hover:bg-rose-700 text-white py-4 rounded-2xl flex flex-col items-center gap-1 mt-auto shadow-lg animate-pulse border-2 border-rose-400 active:scale-95 transition-all">
-                    <i class="fas fa-bell text-2xl"></i>
-                    <span class="text-sm font-bold">직원 호출</span>
+                <div class="flex-1 w-full flex flex-col gap-4 px-4" id="category-tabs"></div>
+                <button onclick="openStaffCallModal()" class="w-11/12 bg-rose-600 hover:bg-rose-700 text-white py-5 rounded-2xl flex flex-col items-center gap-2 mt-auto shadow-lg animate-pulse border-2 border-rose-400 active:scale-95 transition-all">
+                    <i class="fas fa-concierge-bell text-3xl"></i>
+                    <span class="text-lg font-bold">직원 호출</span>
                 </button>
             </div>
 
             <!-- [중앙] 메뉴 및 음성 인터페이스 -->
-            <div class="w-[55%] flex flex-col h-full bg-slate-50 relative z-10">
-                <div class="p-4 bg-white border-b-4 border-blue-500 shadow-sm flex items-center justify-between">
-                    <button id="btn-listen" onclick="toggleListening()" class="flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all active:scale-95">
+            <div class="w-[54%] flex flex-col h-full bg-slate-50 relative z-10">
+                <!-- 음성 인식 컨트롤 바 -->
+                <div class="p-4 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between z-20">
+                    <button id="btn-listen" onclick="toggleListening()" class="flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all active:scale-95">
                         <div class="flex items-center gap-4">
-                            <div id="mic-icon-bg" class="bg-white text-blue-600 rounded-full w-12 h-12 flex items-center justify-center shadow-inner">
-                                <i id="mic-icon" class="fas fa-microphone text-2xl animate-pulse"></i>
+                            <div id="mic-icon-bg" class="bg-white text-blue-600 rounded-full w-14 h-14 flex items-center justify-center shadow-inner">
+                                <i id="mic-icon" class="fas fa-microphone text-3xl animate-pulse"></i>
                             </div>
                             <div class="text-left">
-                                <span id="listen-status" class="text-xs text-blue-200 font-bold block">어르신 말씀 듣고 있어요</span>
-                                <span id="listen-text" class="text-xl font-extrabold tracking-tight">"아무거나 하나 줘"</span>
+                                <span id="listen-status" class="text-sm text-blue-200 font-bold block mb-1">어르신 말씀 듣고 있어요</span>
+                                <span id="listen-text" class="text-2xl font-black tracking-tight">"아무거나 추천해 줘"</span>
                             </div>
                         </div>
-                        <span id="listening-indicator" class="relative flex h-4 w-4">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-4 w-4 bg-blue-100"></span>
-                        </span>
+                        <div id="listening-indicator" class="wave-animation">
+                            <div class="wave-bar bg-white"></div><div class="wave-bar bg-white"></div><div class="wave-bar bg-white"></div><div class="wave-bar bg-white"></div>
+                        </div>
                     </button>
-                    <button onclick="toggleTts()" class="ml-4 p-4 rounded-full bg-slate-200 text-slate-600 hover:bg-slate-300 transition-all">
-                        <i id="tts-icon" class="fas fa-volume-up text-xl"></i>
+                    <button onclick="toggleTts()" class="ml-4 w-16 h-16 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200 transition-all flex items-center justify-center shadow-sm">
+                        <i id="tts-icon" class="fas fa-volume-up text-2xl"></i>
                     </button>
                 </div>
 
-                <div id="voice-feedback-area" class="mx-4 mt-4 p-4 rounded-2xl bg-white shadow-md border border-slate-200 flex flex-col gap-3 hidden animate-[fadeIn_0.3s]">
-                    <div id="transcript-row" class="flex items-center gap-2 text-slate-600 text-base hidden">
+                <!-- 대화형 AI 도우미 말풍선 출력 영역 -->
+                <div id="voice-feedback-area" class="mx-4 mt-4 p-5 rounded-2xl bg-white shadow-md border border-slate-200 flex flex-col gap-3 hidden animate-[fadeIn_0.3s] z-10">
+                    <div id="transcript-row" class="flex items-center gap-2 text-slate-600 text-lg hidden">
                         <span class="w-3 h-3 rounded-full bg-green-500 animate-ping shrink-0"></span>
                         <span class="font-black text-slate-500">어르신:</span>
                         <span id="transcript-text" class="text-slate-900 font-black bg-slate-100 px-3 py-1 rounded-lg border"></span>
                     </div>
-                    <div id="feedback-row" class="text-blue-600 font-bold flex items-start gap-3 hidden">
+                    <div id="feedback-row" class="text-blue-600 font-bold flex items-start gap-3 hidden mt-1">
                         <span class="text-4xl shrink-0">🤖</span> 
                         <div class="bg-blue-600 text-white px-5 py-4 rounded-2xl border-2 border-blue-400 max-w-xl shadow-md">
-                            <span id="feedback-text" class="text-xl font-black leading-snug"></span>
+                            <span id="feedback-text" class="text-2xl font-black leading-snug"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="mx-4 mt-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex gap-2 overflow-x-auto no-scrollbar items-center">
-                    <span class="bg-blue-600 text-white px-2 py-1 rounded font-bold text-sm shrink-0">💡 음성 도움말 (물어보세요)</span>
-                    <button onclick="askDictionary('취소')" class="text-rose-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-rose-100 hover:bg-rose-50">↩️ "방금 거 취소"</button>
-                    <button onclick="askDictionary('세트')" class="text-amber-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-amber-100 hover:bg-amber-50">🍔 "세트가 뭐야?"</button>
-                    <button onclick="askDictionary('사이즈')" class="text-indigo-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-indigo-100 hover:bg-indigo-50">🥤 "라지 사이즈가 뭐야?"</button>
-                    <button onclick="askDictionary('테이크아웃')" class="text-emerald-900 font-bold text-sm bg-white px-3 py-1.5 rounded-full shadow-sm shrink-0 border border-emerald-100 hover:bg-emerald-50">🛍️ "테이크아웃이 뭐야?"</button>
+                <!-- 어르신 맞춤형 도움말 배너 -->
+                <div class="mx-4 mt-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex gap-2 overflow-x-auto no-scrollbar items-center shrink-0">
+                    <span class="bg-blue-600 text-white px-2 py-1.5 rounded font-bold text-sm shrink-0">💡 말해보세요</span>
+                    <button onclick="askDictionary('추천')" class="text-blue-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-blue-200 hover:bg-blue-100">❓ "아무거나 하나 줘"</button>
+                    <button onclick="askDictionary('취소')" class="text-rose-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-rose-200 hover:bg-rose-50">↩️ "방금 거 취소"</button>
+                    <button onclick="askDictionary('세트')" class="text-amber-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-amber-200 hover:bg-amber-50">🍔 "세트가 뭐야?"</button>
+                    <button onclick="askDictionary('사이즈')" class="text-indigo-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-indigo-200 hover:bg-indigo-50">🥤 "라지 사이즈가 뭐야?"</button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-5 content-start no-scrollbar" id="menu-scroll">
+                <!-- 메뉴 그리드 영역 -->
+                <div class="flex-1 overflow-y-auto p-5 content-start no-scrollbar">
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-5" id="menu-container"></div>
                 </div>
             </div>
             
             <!-- [우측] 장바구니 패널 -->
-            <div class="w-[30%] h-full bg-white flex flex-col border-l border-slate-200 shadow-[20px_0_40px_rgba(0,0,0,0.15)] relative z-30">
-                <div class="p-5 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-shopping-cart text-yellow-400 text-lg"></i>
-                        <h3 class="text-xl font-black tracking-tight">선택한 메뉴 내역</h3>
+            <div class="w-[30%] h-full bg-white flex flex-col border-l border-slate-200 shadow-[-10px_0_30px_rgba(0,0,0,0.05)] relative z-30">
+                <div class="p-6 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-shopping-basket text-yellow-400 text-2xl"></i>
+                        <h3 class="text-2xl font-black tracking-tight">선택한 메뉴</h3>
                     </div>
-                    <button onclick="clearCart()" class="text-xs bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300 hover:bg-slate-700 font-bold active:scale-95 transition-all">전체 비우기</button>
+                    <button onclick="clearCart()" class="text-sm bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700 font-bold active:scale-95 transition-all">전체 비우기</button>
                 </div>
-                <div class="flex-1 overflow-y-auto p-4 bg-slate-50 gap-3 flex flex-col" id="cart-container"></div>
-                <div class="p-5 bg-white border-t border-slate-200 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] z-20">
+                
+                <div class="flex-1 overflow-y-auto p-4 bg-slate-50 gap-4 flex flex-col no-scrollbar" id="cart-container"></div>
+                
+                <div class="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-20">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-md font-bold text-slate-500">총 상품 수량</span>
-                        <span class="text-xl font-extrabold text-slate-800"><span id="cart-count" class="text-blue-600">0</span>개</span>
+                        <span class="text-lg font-bold text-slate-500">총 상품 수량</span>
+                        <span class="text-2xl font-extrabold text-slate-800"><span id="cart-count" class="text-blue-600">0</span>개</span>
                     </div>
                     <div class="flex justify-between items-end mb-6">
-                        <span class="text-lg font-black text-slate-800">결제할 금액</span>
+                        <span class="text-2xl font-black text-slate-800">결제할 금액</span>
                         <div class="text-right">
-                            <span class="text-4xl font-black text-rose-600" id="cart-total">0</span>
-                            <span class="text-xl font-bold text-slate-800">원</span>
+                            <span class="text-5xl font-black text-rose-600 tracking-tighter" id="cart-total">0</span>
+                            <span class="text-2xl font-bold text-slate-800">원</span>
                         </div>
                     </div>
-                    <button id="btn-checkout" onclick="openCheckoutOptionModal()" class="w-full bg-rose-500 hover:bg-rose-600 text-white py-5 rounded-2xl text-2xl font-black shadow-lg shadow-rose-500/20 active:scale-98 transition-all flex justify-center items-center gap-3 disabled:bg-slate-300 disabled:shadow-none" disabled>
-                        <span>결제 진행하기</span>
-                        <i class="fas fa-credit-card text-2xl"></i>
+                    <button id="btn-checkout" onclick="handleCheckout()" class="w-full bg-rose-500 hover:bg-rose-600 text-white py-6 rounded-2xl text-2xl font-black shadow-lg shadow-rose-500/20 active:scale-98 transition-all flex justify-center items-center gap-3 disabled:bg-slate-300 disabled:shadow-none" disabled>
+                        <span>주문 완료 (결제)</span>
+                        <i class="fas fa-credit-card text-3xl"></i>
                     </button>
                 </div>
             </div>
@@ -137,21 +150,23 @@
 
         <!-- 🌟 [화면 3] 카드 / 현금 결제수단 화면 -->
         <div id="view-checkout" class="view-screen hidden h-full flex flex-col bg-slate-50 relative z-40">
-            <header class="bg-slate-900 text-white p-5 shadow-md flex justify-between items-center">
-                <h2 class="text-2xl font-black">신용카드 / 현금 결제</h2>
-                <button onclick="navigate('main')" class="bg-slate-800 text-slate-300 px-5 py-2.5 rounded-lg text-md font-bold hover:bg-slate-700">취소하고 돌아가기</button>
+            <header class="bg-slate-900 text-white p-6 shadow-md flex justify-between items-center">
+                <h2 class="text-3xl font-black">신용카드 / 현금 결제</h2>
+                <button onclick="navigate('main')" class="bg-slate-800 border border-slate-700 text-slate-300 px-6 py-3 rounded-xl text-lg font-bold hover:bg-slate-700 transition-all">취소하고 돌아가기</button>
             </header>
             <div class="flex-1 flex flex-col items-center justify-center p-8 relative">
-                <div class="bg-white rounded-3xl shadow-xl p-10 w-full max-w-2xl text-center border border-slate-100">
-                    <h3 class="text-2xl text-slate-500 font-bold mb-3">결제해야 할 총 금액</h3>
-                    <div class="text-6xl font-black text-rose-600 mb-6"><span id="checkout-final-total">0</span>원</div>
-                    <p class="text-lg text-blue-600 font-bold mb-10 bg-blue-50 py-3 rounded-xl">"카드" 혹은 "현금" 이라고 말씀해 주시면 결제됩니다.</p>
+                <div class="bg-white rounded-3xl shadow-xl p-12 w-full max-w-3xl text-center border border-slate-100">
+                    <h3 class="text-3xl text-slate-500 font-bold mb-4">결제해야 할 총 금액</h3>
+                    <div class="text-7xl font-black text-rose-600 mb-8"><span id="checkout-final-total">0</span>원</div>
+                    <p class="text-2xl text-blue-700 font-black mb-12 bg-blue-50 py-5 rounded-2xl border border-blue-100">
+                        "카드" 혹은 "현금" 이라고 말씀해 주시면 결제됩니다.
+                    </p>
                     <div class="flex gap-6 w-full">
-                        <button onclick="processPayment('카드')" class="flex-1 bg-blue-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-100 hover:border-blue-300 py-12 rounded-3xl text-3xl font-black shadow-md transition-all flex flex-col items-center gap-4">
-                            <i class="fas fa-credit-card text-5xl"></i> 신용 / 체크카드
+                        <button onclick="processPayment('카드')" class="flex-1 bg-blue-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-100 hover:border-blue-400 py-14 rounded-3xl text-4xl font-black shadow-md transition-all flex flex-col items-center gap-5 active:scale-95">
+                            <i class="fas fa-credit-card text-7xl"></i> 신용 / 체크카드
                         </button>
-                        <button onclick="processPayment('현금')" class="flex-1 bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 py-12 rounded-3xl text-3xl font-black shadow-md transition-all flex flex-col items-center gap-4">
-                            <i class="fas fa-wallet text-5xl"></i> 현금 결제
+                        <button onclick="processPayment('현금')" class="flex-1 bg-emerald-50 text-emerald-700 border-2 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-400 py-14 rounded-3xl text-4xl font-black shadow-md transition-all flex flex-col items-center gap-5 active:scale-95">
+                            <i class="fas fa-wallet text-7xl"></i> 현금 결제
                         </button>
                     </div>
                 </div>
@@ -159,18 +174,18 @@
         </div>
 
         <!-- 🌟 [화면 4] 결제 완료 화면 -->
-        <div id="view-done" class="view-screen hidden h-full flex flex-col items-center justify-center bg-blue-600 text-white z-50">
-            <div class="bg-white text-blue-600 rounded-full w-40 h-40 flex items-center justify-center mb-8 shadow-2xl">
-                <i class="fas fa-check text-[5.5rem] animate-[scaleIn_0.4s_ease-out]"></i>
+        <div id="view-done" class="view-screen hidden h-full flex flex-col items-center justify-center bg-blue-600 text-white z-50 relative">
+            <div class="bg-white text-blue-600 rounded-full w-48 h-48 flex items-center justify-center mb-8 shadow-2xl">
+                <i class="fas fa-check text-[7rem] animate-[scaleIn_0.5s_ease-out]"></i>
             </div>
-            <h2 class="text-5xl font-black mb-6 text-center leading-tight">결제가 성공적으로 접수되었습니다!</h2>
-            <div class="bg-white/20 p-8 rounded-3xl backdrop-blur-md border border-white/30 text-center mb-10 min-w-[400px]">
-                <div id="done-receipt-type" class="text-2xl font-black text-yellow-300 mb-2">[매장 식사]</div>
-                <p class="text-2xl font-bold text-blue-100 mb-2">대기 주문 번호</p>
-                <p class="text-7xl text-white font-black" id="order-number">101</p>
+            <h2 class="text-6xl font-black mb-8 text-center leading-tight">결제가 성공적으로<br>접수되었습니다!</h2>
+            <div class="bg-white/20 p-10 rounded-3xl backdrop-blur-md border border-white/30 text-center mb-12 min-w-[500px]">
+                <div id="done-receipt-type" class="text-3xl font-black text-yellow-300 mb-4">[매장 식사]</div>
+                <p class="text-3xl font-bold text-blue-100 mb-2">대기 주문 번호</p>
+                <p class="text-8xl text-white font-black drop-shadow-lg" id="order-number">101</p>
             </div>
-            <p class="text-xl text-blue-200 mb-12">출력되는 영수증을 챙겨가 주세요. 5초 뒤 처음으로 돌아갑니다.</p>
-            <div class="w-full max-w-md bg-blue-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+            <p class="text-3xl font-bold text-blue-200 mb-16">출력되는 영수증을 꼭 챙겨가 주세요. 5초 뒤 돌아갑니다.</p>
+            <div class="w-full max-w-2xl bg-blue-800 h-4 rounded-full overflow-hidden shadow-inner">
                 <div class="bg-yellow-400 h-full w-full animate-[progress_5s_linear]"></div>
             </div>
             <style>
@@ -180,110 +195,121 @@
         </div>
 
         <!-- 🌟 [모달 1] 아이템 담기 대화형 확인 모달 -->
-        <div id="senior-explain-modal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-            <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl border-4 border-blue-500 overflow-hidden flex flex-col transform scale-100">
-                <div class="flex justify-between items-center mb-4 pb-4 border-b-2 border-slate-100">
-                    <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center text-5xl" id="modal-item-icon">☕</div>
+        <div id="senior-explain-modal" class="fixed inset-0 bg-slate-900/85 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm transition-opacity">
+            <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl border-4 border-blue-500 overflow-hidden flex flex-col transform scale-100">
+                
+                <div class="flex justify-between items-center mb-6 pb-6 border-b-2 border-slate-100">
+                    <div class="flex items-center gap-5">
+                        <div class="w-24 h-24 bg-slate-100 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-200">
+                            <img id="modal-item-img" src="" alt="메뉴" class="w-full h-full object-cover">
+                        </div>
                         <div>
-                            <h3 id="modal-item-name" class="text-4xl font-black text-slate-900">메뉴명</h3>
-                            <span class="text-blue-600 text-lg font-black mt-1 inline-block" id="modal-item-price-tag">0원</span>
+                            <h3 id="modal-item-name" class="text-4xl font-black text-slate-900 tracking-tight">메뉴명</h3>
+                            <span class="text-blue-600 text-xl font-black mt-2 inline-block bg-blue-50 px-3 py-1 rounded-lg" id="modal-item-price-tag">0원</span>
                         </div>
                     </div>
-                    <button onclick="closeSeniorModal()" class="text-slate-400 hover:text-rose-500 text-5xl font-black px-2 transition-colors">×</button>
+                    <button onclick="closeSeniorModal()" class="text-slate-300 hover:text-rose-500 text-6xl font-black px-2 transition-colors">&times;</button>
                 </div>
                 
-                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 mb-5 text-center shadow-inner">
-                    <p class="text-2xl font-black text-blue-900 mb-2" id="modal-ai-question">메뉴를 장바구니에 담을까요?</p>
-                    <p class="text-blue-700 font-bold text-lg">"응 담아줘", "세 개 담아", "세트로", "라지로" 라고 편하게 말씀하세요!</p>
-                    <div class="mt-4 text-4xl font-black text-rose-600 border-t border-blue-200 pt-4">
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-6 text-center shadow-inner relative overflow-hidden">
+                    <div class="absolute top-0 right-0 text-6xl opacity-10">🤖</div>
+                    <p class="text-3xl font-black text-blue-900 mb-3 leading-tight" id="modal-ai-question">메뉴를 장바구니에 담을까요?</p>
+                    <p class="text-blue-700 font-bold text-xl mb-4 bg-white/70 py-2 rounded-xl border border-blue-100 inline-block px-4">
+                        <i class="fas fa-microphone"></i> "응 담아줘", "세트로", "라지로" 등 대답해 보세요.
+                    </p>
+                    <div class="mt-2 text-5xl font-black text-rose-600 border-t border-blue-200 pt-5">
                         총 <span id="modal-total-price">0</span>원
                     </div>
                 </div>
 
-                <!-- 세트/단품 옵션 (버거류) -->
+                <!-- 세트/단품 옵션 -->
                 <div id="set-option-container" class="flex gap-4 mb-4 hidden">
-                    <button id="btn-option-single" onclick="toggleSetMenu(false)" class="flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-900 transition-all flex flex-col items-center gap-1 shadow-md">
-                        <i class="fas fa-hamburger text-2xl"></i> 단품 (버거만)
+                    <button id="btn-option-single" onclick="toggleSetMenu(false)" class="flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md transform scale-105 transition-all flex flex-col items-center gap-2">
+                        <i class="fas fa-hamburger text-3xl"></i> 단품 (버거만)
                     </button>
-                    <button id="btn-option-set" onclick="toggleSetMenu(true)" class="flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-1">
-                        <div class="flex gap-1"><i class="fas fa-hamburger"></i><i class="fas fa-fries"></i><i class="fas fa-cup-straw"></i></div> 세트 (+3,000원)
+                    <button id="btn-option-set" onclick="toggleSetMenu(true)" class="flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-2">
+                        <div class="flex gap-1 text-2xl"><i class="fas fa-hamburger"></i><i class="fas fa-fries"></i><i class="fas fa-cup-straw"></i></div> 세트 (+3,000원)
                     </button>
                 </div>
 
-                <!-- 온도 옵션 (음료류) -->
+                <!-- 온도 옵션 -->
                 <div id="temp-option-container" class="flex gap-4 mb-4 hidden">
-                    <button id="btn-temp-hot" onclick="changeModalTemp('HOT')" class="flex-1 py-4 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-xl text-rose-700 shadow-md flex items-center justify-center gap-2 transition-all">
-                        <i class="fas fa-mug-hot"></i> 따뜻하게 (HOT)
+                    <button id="btn-temp-hot" onclick="changeModalTemp('HOT')" class="flex-1 py-5 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-2xl text-rose-700 shadow-md flex items-center justify-center gap-3 transition-all">
+                        <i class="fas fa-mug-hot text-3xl"></i> 따뜻하게
                     </button>
-                    <button id="btn-temp-ice" onclick="changeModalTemp('ICE')" class="flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all">
-                        <i class="fas fa-snowflake"></i> 시원하게 (ICE)
+                    <button id="btn-temp-ice" onclick="changeModalTemp('ICE')" class="flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-3 transition-all">
+                        <i class="fas fa-snowflake text-3xl"></i> 시원하게
                     </button>
                 </div>
 
-                <!-- 사이즈 옵션 (음료류) -->
-                <div id="size-option-container" class="flex gap-4 mb-5 hidden">
-                    <button id="btn-size-regular" onclick="changeModalSize('REGULAR')" class="flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-800 shadow-md flex items-center justify-center gap-2 transition-all">
+                <!-- 사이즈 옵션 -->
+                <div id="size-option-container" class="flex gap-4 mb-6 hidden">
+                    <button id="btn-size-regular" onclick="changeModalSize('REGULAR')" class="flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md flex items-center justify-center gap-2 transition-all">
                         보통 (레귤러)
                     </button>
-                    <button id="btn-size-large" onclick="changeModalSize('LARGE')" class="flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-bold text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all">
+                    <button id="btn-size-large" onclick="changeModalSize('LARGE')" class="flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-bold text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all">
                         큰 컵 (+1000원)
                     </button>
                 </div>
 
-                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-6">
-                    <span class="text-xl font-black text-slate-700">몇 개 담을까요?</span>
+                <!-- 수량 조절 -->
+                <div class="flex items-center justify-between bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-8 shadow-inner">
+                    <span class="text-2xl font-black text-slate-700">몇 개 담을까요?</span>
                     <div class="flex items-center gap-8">
-                        <button onclick="changeModalQty(-1)" class="w-14 h-14 bg-white shadow-md active:bg-slate-100 text-4xl font-black rounded-full text-slate-600 border border-slate-300 transition-transform active:scale-90">-</button>
+                        <button onclick="changeModalQty(-1)" class="w-16 h-16 bg-white shadow-md active:bg-slate-100 text-5xl font-black rounded-full text-slate-600 border border-slate-300 transition-transform active:scale-90 flex items-center justify-center pb-2">-</button>
                         <span id="modal-item-qty" class="text-5xl font-black text-blue-600 w-12 text-center">1</span>
-                        <button onclick="changeModalQty(1)" class="w-14 h-14 bg-white shadow-md active:bg-slate-100 text-4xl font-black rounded-full text-slate-600 border border-slate-300 transition-transform active:scale-90">+</button>
+                        <button onclick="changeModalQty(1)" class="w-16 h-16 bg-white shadow-md active:bg-slate-100 text-5xl font-black rounded-full text-slate-600 border border-slate-300 transition-transform active:scale-90 flex items-center justify-center pb-1">+</button>
                     </div>
                 </div>
 
-                <div class="flex gap-4">
-                    <button onclick="closeSeniorModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-black text-xl py-5 rounded-2xl transition-all active:scale-95">아니요 (취소)</button>
-                    <button onclick="addModalItemToCart()" class="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black text-2xl py-5 rounded-2xl shadow-lg active:scale-95 transition-all">네, 담아주세요</button>
+                <div class="flex gap-4 mt-auto">
+                    <button onclick="closeSeniorModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-black text-2xl py-6 rounded-2xl transition-all active:scale-95">아니요 (취소)</button>
+                    <button onclick="addModalItemToCart()" class="flex-[2] bg-blue-600 hover:bg-blue-700 text-white font-black text-3xl py-6 rounded-2xl shadow-xl shadow-blue-600/30 active:scale-95 transition-all">네, 담아주세요</button>
                 </div>
             </div>
         </div>
 
         <!-- 🌟 [모달 2] 매장/포장 선택 모달 -->
-        <div id="checkout-option-modal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-            <div class="bg-white rounded-3xl p-10 max-w-2xl w-full shadow-2xl border-4 border-rose-500 text-center">
-                <h3 class="text-4xl font-black text-slate-900 mb-4">어디서 드시겠습니까?</h3>
-                <p class="text-slate-500 font-bold text-xl mb-10 bg-slate-50 py-3 rounded-xl border border-slate-200">"매장" 혹은 "포장" 이라고 편하게 말씀해 주세요.</p>
-                <div class="grid grid-cols-2 gap-6 mb-6">
-                    <button onclick="finishOrderType('매장 식사')" class="py-12 bg-amber-50 border-2 border-amber-400 hover:bg-amber-100 text-amber-900 font-black text-3xl rounded-3xl flex flex-col items-center gap-4 shadow-md transition-all active:scale-95">
-                        <i class="fas fa-store text-6xl"></i> 먹고 가기 (매장)
+        <div id="checkout-option-modal" class="fixed inset-0 bg-slate-900/85 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+            <div class="bg-white rounded-[2rem] p-10 max-w-2xl w-full shadow-2xl border-4 border-rose-500 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-rose-400 to-orange-400"></div>
+                <h3 class="text-4xl font-black text-slate-900 mb-4 mt-4">어디서 드시겠습니까?</h3>
+                <p class="text-blue-700 font-bold text-2xl mb-10 bg-blue-50 py-4 rounded-xl border border-blue-200">
+                    <i class="fas fa-microphone"></i> "매장" 혹은 "포장" 이라고 편하게 말씀해 주세요.
+                </p>
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <button onclick="finishOrderType('매장 식사')" class="py-14 bg-amber-50 border-2 border-amber-400 hover:bg-amber-100 text-amber-900 font-black text-4xl rounded-3xl flex flex-col items-center gap-5 shadow-lg transition-all active:scale-95">
+                        <i class="fas fa-store text-7xl mb-2 text-amber-600"></i> 먹고 가기<br><span class="text-2xl text-amber-700 mt-2">(매장)</span>
                     </button>
-                    <button onclick="finishOrderType('테이크아웃')" class="py-12 bg-blue-50 border-2 border-blue-400 hover:bg-blue-100 text-blue-900 font-black text-3xl rounded-3xl flex flex-col items-center gap-4 shadow-md transition-all active:scale-95">
-                        <i class="fas fa-shopping-bag text-6xl"></i> 포장 하기 (테이크아웃)
+                    <button onclick="finishOrderType('테이크아웃')" class="py-14 bg-blue-50 border-2 border-blue-400 hover:bg-blue-100 text-blue-900 font-black text-4xl rounded-3xl flex flex-col items-center gap-5 shadow-lg transition-all active:scale-95">
+                        <i class="fas fa-shopping-bag text-7xl mb-2 text-blue-600"></i> 포장 하기<br><span class="text-2xl text-blue-700 mt-2">(가져감)</span>
                     </button>
                 </div>
-                <button onclick="closeCheckoutOptionModal()" class="w-full py-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black text-xl rounded-2xl transition-all">결제 취소하고 돌아가기</button>
+                <button onclick="closeCheckoutOptionModal()" class="w-full py-5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black text-2xl rounded-2xl transition-all">결제 취소하고 돌아가기</button>
             </div>
         </div>
 
         <!-- 🌟 [모달 3] 직원 호출 모달 -->
-        <div id="staff-call-modal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-            <div class="bg-white rounded-3xl p-10 max-w-md w-full shadow-2xl border-4 border-rose-500 text-center">
+        <div id="staff-call-modal" class="fixed inset-0 bg-slate-900/85 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+            <div class="bg-white rounded-[2rem] p-10 max-w-md w-full shadow-2xl border-4 border-rose-500 text-center animate-[fadeIn_0.2s]">
                 <div class="text-8xl mb-6 text-rose-500"><i class="fas fa-concierge-bell animate-bounce"></i></div>
-                <h3 class="text-3xl font-black text-slate-900 mb-3">도움이 필요하신가요?</h3>
-                <p class="text-xl font-bold text-slate-600 mb-8 bg-rose-50 py-4 rounded-xl border border-rose-100">
+                <h3 class="text-4xl font-black text-slate-900 mb-4">도움이 필요하신가요?</h3>
+                <p class="text-2xl font-bold text-slate-700 mb-8 bg-rose-50 py-5 rounded-2xl border border-rose-100 leading-snug">
                     직원을 이쪽으로 부를까요?<br>
-                    <span class="text-rose-600 mt-2 block">"응, 불러줘" 또는 "아니"</span>
+                    <span class="text-rose-600 mt-3 block font-black bg-white mx-4 py-2 rounded-lg border border-rose-200">"응, 불러줘" 또는 "아니"</span>
                 </p>
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="closeStaffCallModal()" class="py-5 bg-slate-200 text-slate-800 font-black text-xl rounded-2xl">아니요</button>
-                    <button onclick="confirmStaffCall()" class="py-5 bg-rose-600 text-white font-black text-xl rounded-2xl shadow-lg">네, 불러주세요</button>
+                    <button onclick="closeStaffCallModal()" class="py-6 bg-slate-200 hover:bg-slate-300 text-slate-800 font-black text-2xl rounded-2xl">아니요</button>
+                    <button onclick="confirmStaffCall()" class="py-6 bg-rose-600 hover:bg-rose-700 text-white font-black text-2xl rounded-2xl shadow-lg">네, 불러주세요</button>
                 </div>
             </div>
         </div>
 
     </div>
 
+    <!-- 스크립트 -->
     <script>
-        // 1. 카페 메뉴 데이터
+        // 🌟 1. 카페 메뉴 및 이미지 데이터 완벽 세팅
         const CATEGORIES = [
             { id: 'burger', name: '햄버거', icon: '🍔' },
             { id: 'side', name: '간식/사이드', icon: '🍟' },
@@ -291,26 +317,27 @@
         ];
 
         const MENU_ITEMS = [
-            { id: 'quatro', name: '콰트로치즈버거', price: 6500, icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, keywords: ['콰트로', '콰트로치즈', '치즈버거', '치즈 버거', '치즈 많은 거'] },
-            { id: 'shrimp', name: '쉬림프버거', price: 5500, icon: '🍤', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, keywords: ['쉬림프', '새우버거', '새우 버거', '새우 든 거'] },
-            { id: 'beef', name: '비프플래터', price: 9500, icon: '🍖', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, keywords: ['비프', '플래터', '모듬요리', '고기 모듬'] },
-            { id: 'bigmac', name: '빅맥버거', price: 6000, icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, keywords: ['빅맥', '빅 맥', '큰 버거', '고기 두장'] },
-            { id: 'bulgogi', name: '불고기버거', price: 4500, icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, keywords: ['불고기', '불고기버거', '불고기 버거'] },
-            { id: 'cookie', name: '청크 초코 쿠키', price: 2500, icon: '🍪', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, keywords: ['청크', '초코쿠키', '쿠키', '과자', '초콜릿', '단거'] },
-            { id: 'cheese_stick', name: '디핑 치즈스틱', price: 3000, icon: '🥖', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, keywords: ['치즈스틱', '스틱', '디핑', '치즈 튀김'] },
-            { id: 'americano', name: '아메리카노', price: 2500, icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, keywords: ['아메리카노', '아메', '블랙커피', '쓴커피', '커피'] },
-            { id: 'decaf', name: '디카페인 아메리카노', price: 3500, icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: false, keywords: ['디카페인', '아메리카노', '순한 커피', '잠 잘오는 커피', '안 쓴 커피'] },
-            { id: 'vanilla', name: '바닐라라떼', price: 3500, icon: '🍯', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, keywords: ['바닐라라떼', '바닐라', '단커피', '달달한거', '달달한커피'] },
-            { id: 'grapefruit', name: '자몽 에이드', price: 4000, icon: '🍹', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, keywords: ['에이드', '자몽에이드', '자몽', '과일 음료'] },
-            { id: 'cider', name: '사이다', price: 1500, icon: '🥤', category: 'coffee', setOption: false, tempOption: false, sizeOption: true, bestSeller: false, keywords: ['사이다', '스프라이트', '투명한 음료', '탄산'] }
+            { id: 'quatro', name: '콰트로치즈버거', price: 6500, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400', icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, translation: '네 가지 치즈 햄버거', description: '치즈가 듬뿍 들어간 고소한 햄버거입니다.', keywords: ['콰트로', '콰트로치즈', '치즈버거', '치즈 버거', '치즈 많은 거'] },
+            { id: 'shrimp', name: '쉬림프버거', price: 5500, img: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&q=80&w=400', icon: '🍤', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '통새우 햄버거', description: '고소한 통새우를 바삭하게 튀겨내어 만든 담백한 버거입니다.', keywords: ['쉬림프', '새우버거', '새우 버거', '새우 든 거'] },
+            { id: 'beef', name: '비프플래터', price: 9500, img: 'https://images.unsplash.com/photo-1544025162-8315ea07f440?auto=format&fit=crop&q=80&w=400', icon: '🍖', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '소고기 모듬 요리', description: '소고기 패티와 야채를 한 접시에 모아 먹는 푸짐한 요리입니다.', keywords: ['비프', '플래터', '모듬요리', '고기 모듬'] },
+            { id: 'bigmac', name: '빅맥버거', price: 6000, img: 'https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&q=80&w=400', icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, translation: '곱빼기 고기 햄버거', description: '소고기 패티가 두 장 들어가 양이 아주 푸짐한 큰 햄버거입니다.', keywords: ['빅맥', '빅 맥', '큰 버거', '고기 두장'] },
+            { id: 'bulgogi', name: '불고기버거', price: 4500, img: 'https://images.unsplash.com/photo-1594212691516-7463f848be42?auto=format&fit=crop&q=80&w=400', icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '달콤한 간장소스 햄버거', description: '달콤한 불고기 양념 고기가 들어간 부드러운 햄버거입니다.', keywords: ['불고기', '불고기버거', '불고기 버거'] },
+            { id: 'cookie', name: '청크 초코 쿠키', price: 2500, img: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&q=80&w=400', icon: '🍪', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '초콜릿 과자', description: '달콤한 초콜릿 알맹이가 박혀 있는 바삭한 과자입니다.', keywords: ['청크', '초코쿠키', '쿠키', '과자', '초콜릿', '단거'] },
+            { id: 'cheese_stick', name: '디핑 치즈스틱', price: 3000, img: 'https://images.unsplash.com/photo-1536510233921-8e5043fce771?auto=format&fit=crop&q=80&w=400', icon: '🥖', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '치즈 통밀빵', description: '치즈를 튀겨내 양념에 찍어 먹는 간식입니다.', keywords: ['치즈스틱', '스틱', '디핑', '치즈 튀김'] },
+            { id: 'americano', name: '아메리카노', price: 2500, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=400', icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '쓴 커피', description: '가장 많이 찾으시는 기본 커피입니다.', keywords: ['아메리카노', '아메', '블랙커피', '쓴커피', '커피'] },
+            { id: 'decaf', name: '디카페인 아메리카노', price: 3500, img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=400', icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: false, translation: '잠 잘오는 순한 커피', description: '카페인을 빼서 밤에 드셔도 속이 편안하고 잠이 잘 옵니다.', keywords: ['디카페인', '순한 커피', '잠 잘오는 커피', '안 쓴 커피'] },
+            { id: 'vanilla', name: '바닐라라떼', price: 3500, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=400', icon: '🍯', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '달달한 커피', description: '우유와 달콤한 바닐라 향이 들어간 커피입니다.', keywords: ['바닐라라떼', '바닐라', '단커피', '달달한거', '달달한커피', '단 거'] },
+            { id: 'grapefruit', name: '자몽 에이드', price: 4000, img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400', icon: '🍹', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '톡 쏘는 과일 음료', description: '상큼한 자몽과 탄산수를 섞어 만든 시원한 음료입니다.', keywords: ['에이드', '자몽에이드', '자몽', '과일 음료'] },
+            { id: 'cider', name: '사이다', price: 1500, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400', icon: '🥤', category: 'coffee', setOption: false, tempOption: false, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '맑은 탄산음료', description: '시원하고 톡 쏘는 투명한 음료입니다.', keywords: ['사이다', '스프라이트', '투명한 음료', '탄산', '음료수'] }
         ];
 
         const SENIOR_DICTIONARY = {
-            '이런게뭐야': "잘 모르시거나 어려운 용어가 있다면 화면 속 메뉴를 누르거나 저에게 편하게 물어봐 주세요.",
+            '이런게뭐야': "잘 모르시거나 어려운 용어가 있다면 저에게 편하게 물어봐 주세요. 친절히 가르쳐 드릴게요.",
             '세트': "세트 메뉴는 햄버거에 감자튀김과 시원한 음료수까지 묶어서 3000원만 더 내고 싸게 드리는 구성입니다.",
             '사이즈': "레귤러는 보통 크기 컵이고, 라지는 양을 많이 드시는 분들을 위해 1000원을 더 내고 아주 큰 컵으로 바꾸는 기능입니다.",
             '테이크아웃': "테이크아웃이나 포장은 매장에서 드시지 않고 밖으로 가져가실 수 있게 봉투에 담아드리는 것입니다.",
-            '취소': "주문 중 실수를 하셨다면 '방금 거 취소' 혹은 '잘못 담았어'라고 말씀해 주세요. 즉시 지워 드립니다."
+            '취소': "주문 중 실수를 하셨다면 '방금 거 취소' 혹은 '잘못 담았어'라고 말씀해 주세요. 즉시 지워 드립니다.",
+            '추천': "가장 잘 나가는 불고기버거 혹은 달달한 바닐라 라떼를 추천해 드려요. 드시겠어요?"
         };
 
         // 앱 상태 변수
@@ -318,9 +345,10 @@
         let activeCategory = 'burger'; 
         let currentView = 'welcome';
         
-        let currentActiveModal = null; 
+        // 모달 상태 큐 변수
+        let currentActiveModal = null; // null, 'itemAdd', 'checkoutOption', 'staffCall'
         let pendingOrderQueue = []; 
-        let lastAddedItems = []; 
+        let lastAddedItems = []; // Undo 이력
         let currentReceiptType = ''; 
         
         let selectedModalItem = null; 
@@ -329,6 +357,7 @@
         let currentModalSize = 'REGULAR'; 
         let currentModalSet = false;
 
+        // 🌟 초창기 완벽 음성 인식 엔진 설정
         let isListening = false; 
         let isTtsMuted = false; 
         let shouldRestartRecognition = false;
@@ -339,13 +368,13 @@
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.lang = 'ko-KR';
-            recognition.interimResults = true; // 🌟 찰떡같이 알아듣는 초창기 엔진
+            recognition.interimResults = true; // 🌟 찰떡같이 알아듣는 실시간 인식
             recognition.maxAlternatives = 1;
-            recognition.continuous = false; // 🌟 수동 루프
+            recognition.continuous = false; // 🌟 수동 제어로 에러 방지
 
             recognition.onstart = () => {
                 isListening = true; updateListeningUI(); showVoiceArea(true);
-                setTranscriptText('무엇이든 말씀해 보세요. (예: 아메리카노 라지 두 잔, 총 얼마야?)');
+                setTranscriptText('듣고 있습니다. 편하게 말씀하세요.');
             };
 
             recognition.onresult = (event) => {
@@ -409,7 +438,7 @@
         function speakFeedback(text) {
             if (isTtsMuted) return;
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
+                window.speechSynthesis.cancel(); // 🌟 말하는 도중에도 바로 인식 가능하게 끊어버림
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ko-KR';
                 utterance.rate = 0.95; 
@@ -429,7 +458,7 @@
         function toggleTts() {
             isTtsMuted = !isTtsMuted;
             document.getElementById('tts-icon').className = isTtsMuted ? "fas fa-volume-mute text-xl text-red-500" : "fas fa-volume-up text-xl";
-            showTemporaryFeedback(isTtsMuted ? '음성 안내를 껐습니다.' : '음성 안내를 켰습니다.');
+            showTemporaryFeedback(isTtsMuted ? '안내를 껐습니다.' : '안내를 켰습니다.');
         }
 
         function toggleListening() {
@@ -450,46 +479,36 @@
             const ind = document.getElementById('listening-indicator');
             
             if (isListening || shouldRestartRecognition) {
-                btn.className = "flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all scale-[1.02] shadow-blue-500/30";
-                iconBg.className = "bg-white text-blue-600 rounded-full w-12 h-12 flex items-center justify-center shadow-inner";
-                icon.className = "fas fa-microphone text-2xl animate-bounce";
+                btn.className = "flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all scale-[1.02] shadow-blue-500/30";
+                iconBg.className = "bg-white text-blue-600 rounded-full w-14 h-14 flex items-center justify-center shadow-inner";
+                icon.className = "fas fa-microphone text-3xl animate-bounce";
                 status.innerText = "어르신 말씀 듣고 있어요";
-                status.className = "text-xs text-blue-200 font-bold block";
+                status.className = "text-sm text-blue-200 font-bold block mb-1";
                 text.innerText = "마이크 켜짐";
                 ind.classList.remove('hidden');
             } else {
-                btn.className = "flex-1 max-w-[85%] bg-white border-2 border-amber-400 text-amber-900 px-6 py-4 rounded-2xl shadow-sm flex items-center justify-between transition-all hover:bg-amber-50";
-                iconBg.className = "bg-amber-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-inner";
-                icon.className = "fas fa-microphone text-2xl";
+                btn.className = "flex-1 max-w-[85%] bg-white border-4 border-amber-400 text-amber-900 px-6 py-4 rounded-2xl shadow-sm flex items-center justify-between transition-all hover:bg-amber-50";
+                iconBg.className = "bg-amber-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-inner";
+                icon.className = "fas fa-microphone text-3xl";
                 status.innerText = "마이크가 꺼져있습니다";
-                status.className = "text-xs text-amber-700 font-bold block";
-                text.innerText = "버튼을 눌러 음성 주문 켜기";
+                status.className = "text-sm text-amber-700 font-bold block mb-1";
+                text.innerText = "버튼을 눌러 음성 켜기";
                 ind.classList.add('hidden');
             }
         }
 
         function askDictionary(key) {
+            if(key === '추천') { processVoiceCommand('아무거나 하나 줘'); return; }
             const answer = SENIOR_DICTIONARY[key];
             if (answer) { showTemporaryFeedback(answer); speakFeedback(answer); }
         }
 
-        // 🌟 통합 음성 사령탑
+        // 🌟 핵심 음성 사령탑
         function processVoiceCommand(command) {
             const cleanCommand = command.trim();
-            window.speechSynthesis.cancel(); // 인터럽트
+            window.speechSynthesis.cancel(); // 인터럽트 (말끊기)
 
-            // [0. 공통 영어 방어 및 공통 사전 응답]
-            if (/(테이크\s*아웃|테이크|포장|take\s*out|take|가져)/i.test(cleanCommand) && /(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
-                showTemporaryFeedback(SENIOR_DICTIONARY['테이크아웃']); speakFeedback(SENIOR_DICTIONARY['테이크아웃']); return;
-            }
-            if (/(세트|콤보).*(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
-                showTemporaryFeedback(SENIOR_DICTIONARY['세트']); speakFeedback(SENIOR_DICTIONARY['세트']); return;
-            }
-            if (/(사이즈|레귤러|라지).*(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
-                showTemporaryFeedback(SENIOR_DICTIONARY['사이즈']); speakFeedback(SENIOR_DICTIONARY['사이즈']); return;
-            }
-
-            // [1. 직원 호출 대기중 응답]
+            // [1. 직원 호출 대기중]
             if (currentActiveModal === 'staffCall') {
                 if (/(응|어|그래|불러|해줘|맞아|네|예|좋아)/.test(cleanCommand)) {
                     confirmStaffCall(); return;
@@ -498,7 +517,7 @@
                 }
             }
             
-            // [2. 결제방식 대기중 응답]
+            // [2. 결제방식 (매장/포장) 대기중]
             if (currentActiveModal === 'checkoutOption') {
                 if (/(매장|먹고|식사)/.test(cleanCommand)) {
                     finishOrderType('매장 식사'); return;
@@ -509,7 +528,7 @@
                 }
             }
 
-            // [3. 카드/현금 결제 대기중 응답]
+            // [3. 카드/현금 대기중]
             if (currentView === 'checkout') {
                 if (/(카드|신용|체크)/.test(cleanCommand)) {
                     processPayment('카드'); return;
@@ -520,16 +539,14 @@
                 }
             }
 
-            // [4. 아이템 담기 모달 대기중 응답]
+            // [4. 아이템 모달 대기중]
             if (currentActiveModal === 'itemAdd') {
                 let actionTriggered = false;
                 
-                // 수량 조절 (한 개 하면 1개로 덮어쓰기)
+                // 수량 조절
                 const qtyMatch = parseStandaloneQuantity(cleanCommand);
                 if (qtyMatch !== null) {
-                    currentModalQty = qtyMatch;
-                    updateModalPriceDisplay();
-                    actionTriggered = true;
+                    currentModalQty = qtyMatch; updateModalPriceDisplay(); actionTriggered = true;
                 }
                 
                 // 세트 옵션
@@ -560,18 +577,28 @@
                     let msg = `${currentModalQty}개. `;
                     if(selectedModalItem.setOption) msg += currentModalSet ? '세트로. ' : '단품으로. ';
                     if(selectedModalItem.tempOption) msg += currentModalTemp === 'HOT' ? '따뜻하게. ' : '시원하게. ';
-                    if(selectedModalItem.sizeOption) msg += currentModalSize === 'LARGE' ? '라지 사이즈로. ' : '보통 사이즈로. ';
-                    msg += '맞췄습니다. 이대로 담을까요?';
-                    speakFeedback(msg);
-                    return;
+                    if(selectedModalItem.sizeOption) msg += currentModalSize === 'LARGE' ? '라지 사이즈로. ' : '보통 컵으로. ';
+                    msg += '이대로 담을까요?';
+                    speakFeedback(msg); return;
                 }
             }
 
-            // [5. 실행 취소 (Undo)]
+            // [5. 공통 영어/사전 방어]
+            if (/(테이크\s*아웃|테이크|포장|take\s*out|take|가져)/i.test(cleanCommand) && /(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
+                askDictionary('테이크아웃'); return;
+            }
+            if (/(세트|콤보).*(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
+                askDictionary('세트'); return;
+            }
+            if (/(사이즈|레귤러|라지).*(뭐야|뭐여|무슨|뜻)/.test(cleanCommand)) {
+                askDictionary('사이즈'); return;
+            }
+
+            // [6. 실행 취소 (Undo)]
             if (/(취소\s*해\s*줘|취소해줘|방금\s*거\s*취소|잘못\s*담았어|그거\s*빼줘|방금거\s*취소|아니\s*취소|아차\s*잘못|이거\s*아니야|^취소$|^취소해$)/.test(cleanCommand)) {
                 if (lastAddedItems.length > 0) {
                     const last = lastAddedItems.pop();
-                    subtractFromCart(last.item.id, last.isSet, last.temp, last.size, last.qty);
+                    subtractFromCart(last.item.id, last.temp, last.size, last.isSet, last.qty);
                     showTemporaryFeedback(`방금 담으신 메뉴 취소 완료`);
                     speakFeedback("방금 선택하신 메뉴를 지웠습니다.");
                 } else {
@@ -580,26 +607,24 @@
                 return;
             }
 
-            // [6. 메뉴 추천 ("아무거나", "간단하게")]
+            // [7. 메뉴 추천 ("아무거나", "간단하게")]
             if (/(간단하게|간단\s*하게|가볍게|아무거나).*(먹을|할래|줘|마실|커피)/.test(cleanCommand) || cleanCommand === '아무거나') {
                 const item = MENU_ITEMS.find(i => i.id === 'bulgogi');
                 openSeniorModal(item, 1, null, null, false);
-                speakFeedback("어르신, 가장 잘 나가는 불고기버거를 띄웠습니다. 장바구니에 담으시겠습니까?");
-                return;
+                speakFeedback("어르신, 가장 잘 나가는 불고기버거를 띄웠습니다. 장바구니에 담으시겠습니까?"); return;
             }
             if (/(달달한|단거|단\s*거).*(먹을|마실|줘|커피)/.test(cleanCommand)) {
                 const item = MENU_ITEMS.find(i => i.id === 'vanilla');
                 openSeniorModal(item, 1, 'HOT', 'REGULAR', false);
-                speakFeedback("달콤한 바닐라 라떼를 띄웠습니다. 장바구니에 담으시겠습니까?");
-                return;
+                speakFeedback("달콤한 바닐라 라떼를 띄웠습니다. 장바구니에 담으시겠습니까?"); return;
             }
 
-            // [7. 직원 호출 감지]
+            // [8. 직원 호출 감지]
             if (/(직원|사람|도와줄|매니저|사장).*(불러|없어|도와|와봐|오라고)/.test(cleanCommand) || cleanCommand.includes('직원 호출')) {
                 openStaffCallModal(); return;
             }
 
-            // [8. 가격 문의]
+            // [9. 가격 문의]
             if (/(총|전부|다해서|다\s*해서|장바구니|결제).*(얼마|얼마야|얼마지)/.test(cleanCommand)) {
                 if (cart.length === 0) { speakFeedback("현재 장바구니가 비어있습니다."); return; }
                 const total = calculateTotal();
@@ -617,7 +642,7 @@
                 return;
             }
 
-            // [9. 상위 카테고리 전환]
+            // [10. 상위 카테고리 전환]
             if (/(햄버거|버거|빵|요깃거리).*(보여줘|줘|어디)/.test(cleanCommand) || cleanCommand === '버거' || cleanCommand === '햄버거') {
                 filterCategory('burger');
                 const specificMatch = MENU_ITEMS.find(i => i.category==='burger' && (i.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(i.name)));
@@ -629,23 +654,18 @@
                 if (!specificMatch) { speakFeedback("커피 종류를 화면에 띄워드렸습니다."); return; }
             }
 
-            // [10. 결제 진행 진입]
+            // [11. 결제 진행 진입]
             if (/(결제|계산|주문\s*완료|완료해|돈\s*내|살게|살래|다\s*골랐어)/.test(cleanCommand)) {
                 handleCheckout(); return;
             }
 
-            // [11. 상품 담기 큐 추출]
+            // [12. 🌟 상품 담기 큐 추출] ("빅맥 세 개에 아메리카노 하나 줘")
             const extractedItems = extractItemsFromCommand(cleanCommand);
             if (extractedItems.length > 0) {
                 if (currentActiveModal === 'itemAdd') { closeSeniorModal(true); } 
                 extractedItems.forEach(order => pendingOrderQueue.push(order));
                 processPendingQueue();
                 return;
-            }
-
-            // [12. 일반 사전]
-            if (/(뭐야|무슨|어떤|뜻|어떻게|도와줘|알려줘)/.test(cleanCommand)) {
-                askDictionary('이런게뭐야'); return;
             }
 
             showTemporaryFeedback('🤔 어르신, 기계가 단어를 잘 알아듣지 못했어요.');
@@ -716,7 +736,7 @@
             }
         }
 
-        // 🌟 모달창 컨트롤러 (세트 + 온도 + 사이즈)
+        // 🌟 모달창 컨트롤러
         function openSeniorModal(item, qty = 1, temp = null, size = null, isSet = false) {
             playChime();
             currentActiveModal = 'itemAdd';
@@ -726,7 +746,7 @@
             currentModalSize = size || 'REGULAR';
             currentModalSet = isSet || false;
             
-            document.getElementById('modal-item-icon').innerText = item.icon;
+            document.getElementById('modal-item-img').src = item.img;
             
             const setContainer = document.getElementById('set-option-container');
             if (item.setOption) {
@@ -737,7 +757,7 @@
                 document.getElementById('modal-item-name').innerText = item.name;
             }
 
-            document.getElementById('modal-item-translation').innerText = `💡 기본 가격: ${item.price.toLocaleString()}원`;
+            document.getElementById('modal-item-price-tag').innerText = `기본 ${item.price.toLocaleString()}원`;
             
             const tempContainer = document.getElementById('temp-option-container');
             if (item.tempOption) {
@@ -766,9 +786,9 @@
             aiSpeak += ` ${currentModalQty}개. `;
             
             if (item.setOption) {
-                aiSpeak += currentModalSet ? "세트 입니다. 장바구니에 담으시겠습니까? 응, 아니오로 대답해주세요." : "단품 입니다. 세트로 변경하시겠습니까, 아니면 이대로 담을까요?";
+                aiSpeak += currentModalSet ? "세트 입니다. 장바구니에 담으시겠습니까?" : "단품 입니다. 세트로 변경하시겠습니까, 아니면 이대로 담을까요?";
             } else {
-                aiSpeak += "이대로 담으시겠습니까? 네 아니오로 대답해주세요.";
+                aiSpeak += "장바구니에 담으시겠습니까? 네 아니오로 대답해주세요.";
             }
             speakFeedback(aiSpeak);
         }
@@ -780,14 +800,12 @@
             const btnSet = document.getElementById('btn-option-set');
             
             if (isSet) {
-                btnSet.className = "flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-900 transition-all flex flex-col items-center gap-1 shadow-md transform scale-105";
-                btnSingle.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-1";
-                document.getElementById('modal-item-icon').innerText = "🍔🍟🥤";
+                btnSet.className = "flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md transform scale-105 transition-all flex flex-col items-center gap-2";
+                btnSingle.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-2";
                 document.getElementById('modal-item-name').innerText = selectedModalItem.name + " (세트)";
             } else {
-                btnSingle.className = "flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-900 transition-all flex flex-col items-center gap-1 shadow-md transform scale-105";
-                btnSet.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-1";
-                document.getElementById('modal-item-icon').innerText = selectedModalItem.icon;
+                btnSingle.className = "flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md transform scale-105 transition-all flex flex-col items-center gap-2";
+                btnSet.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 transition-all flex flex-col items-center gap-2";
                 document.getElementById('modal-item-name').innerText = selectedModalItem.name;
             }
             updateModalPriceDisplay();
@@ -799,11 +817,11 @@
             currentModalTemp = temp;
             const btnHot = document.getElementById('btn-temp-hot'); const btnIce = document.getElementById('btn-temp-ice');
             if (temp === 'HOT') {
-                btnHot.className = "flex-1 py-4 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-xl text-rose-700 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnIce.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
+                btnHot.className = "flex-1 py-5 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-2xl text-rose-700 shadow-md flex items-center justify-center gap-3 transform scale-105 transition-all";
+                btnIce.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-3 transition-all";
             } else {
-                btnIce.className = "flex-1 py-4 rounded-2xl border-4 border-blue-500 bg-blue-50 font-black text-xl text-blue-700 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnHot.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-black text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
+                btnIce.className = "flex-1 py-5 rounded-2xl border-4 border-blue-500 bg-blue-50 font-black text-2xl text-blue-700 shadow-md flex items-center justify-center gap-3 transform scale-105 transition-all";
+                btnHot.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-3 transition-all";
             }
             updateModalPriceDisplay();
             if(!skipSound) speakFeedback(temp === 'HOT' ? '따뜻하게' : '시원하게');
@@ -814,11 +832,11 @@
             currentModalSize = size;
             const btnReg = document.getElementById('btn-size-regular'); const btnLrg = document.getElementById('btn-size-large');
             if (size === 'REGULAR') {
-                btnReg.className = "flex-1 py-4 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-xl text-amber-800 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnLrg.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-bold text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
+                btnReg.className = "flex-1 py-5 rounded-2xl border-4 border-amber-500 bg-amber-50 font-black text-2xl text-amber-900 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
+                btnLrg.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-bold text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
             } else {
-                btnLrg.className = "flex-1 py-4 rounded-2xl border-4 border-indigo-500 bg-indigo-50 font-black text-xl text-indigo-800 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
-                btnReg.className = "flex-1 py-4 rounded-2xl border-2 border-slate-200 bg-white font-bold text-xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
+                btnLrg.className = "flex-1 py-5 rounded-2xl border-4 border-indigo-500 bg-indigo-50 font-black text-2xl text-indigo-900 shadow-md flex items-center justify-center gap-2 transform scale-105 transition-all";
+                btnReg.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-bold text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-2 transition-all";
             }
             updateModalPriceDisplay();
             if(!skipSound) speakFeedback(size === 'REGULAR' ? '레귤러 보통 컵' : '라지 큰 컵');
@@ -874,7 +892,6 @@
                     cartId: Date.now() + Math.random().toString(36).substr(2, 9)
                 };
                 
-                // 중복체크 병합 로직
                 const duplicate = cart.find(c => c.id === finalItem.id && c.temp === currentModalTemp && c.size === currentModalSize && c.isSet === currentModalSet);
                 if (duplicate) { duplicate.qty += currentModalQty; } 
                 else { cart.push({ ...finalItem, temp: currentModalTemp, size: currentModalSize, isSet: currentModalSet, qty: currentModalQty }); }
@@ -891,7 +908,7 @@
             } 
         }
 
-        // 모달 및 결제 제어
+        // 직원 호출 모달
         function openStaffCallModal() {
             playChime(); currentActiveModal = 'staffCall';
             document.getElementById('staff-call-modal').classList.remove('hidden');
@@ -904,12 +921,10 @@
             speakFeedback("직원을 호출했습니다. 잠시만 기다려주세요.");
         }
 
+        // 결제 옵션 모달
         function handleCheckout() {
-            if(cart.length > 0) {
-                playChime(); openCheckoutOptionModal();
-            } else {
-                playClickSound(); speakFeedback('장바구니가 비어 있습니다. 메뉴판을 눌러 상품을 담은 후 결제를 시도해 주세요.');
-            }
+            if(cart.length > 0) { playChime(); openCheckoutOptionModal(); } 
+            else { playClickSound(); speakFeedback('장바구니가 비어 있습니다. 메뉴판을 눌러 상품을 담은 후 결제를 시도해 주세요.'); }
         }
 
         function openCheckoutOptionModal() {
@@ -920,8 +935,7 @@
         function closeCheckoutOptionModal() { playClickSound(); document.getElementById('checkout-option-modal').classList.add('hidden'); currentActiveModal = null; }
         
         function finishOrderType(type) {
-            playClickSound();
-            closeCheckoutOptionModal();
+            playClickSound(); closeCheckoutOptionModal();
             currentReceiptType = type;
             navigate('checkout');
         }
@@ -938,7 +952,6 @@
 
         function closeReceipt() { playClickSound(); navigate('welcome'); speakFeedback("처음으로 돌아갑니다."); }
 
-        // UI 네비게이션 & 렌더링
         function navigate(view) {
             document.querySelectorAll('.view-screen').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${view}`).classList.remove('hidden');
@@ -959,10 +972,10 @@
             CATEGORIES.forEach(cat => {
                 const isActive = cat.id === activeCategory;
                 const btn = document.createElement('button');
-                btn.className = `w-full py-5 rounded-2xl flex flex-col items-center justify-center transition-all duration-200 shadow-sm ${
-                    isActive ? 'bg-gradient-to-b from-blue-600 to-indigo-700 text-white border-2 border-blue-400 scale-105 font-black' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-750'
+                btn.className = `w-full py-5 rounded-3xl flex flex-col items-center justify-center transition-all duration-200 shadow-sm border-2 ${
+                    isActive ? 'bg-gradient-to-b from-blue-600 to-indigo-700 text-white border-blue-400 scale-105 font-black' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
                 }`;
-                btn.innerHTML = `<span class="text-3xl mb-1">${cat.icon}</span><span class="text-xl">${cat.name}</span>`;
+                btn.innerHTML = `<span class="text-4xl mb-2">${cat.icon}</span><span class="text-xl">${cat.name}</span>`;
                 btn.onclick = () => filterCategory(cat.id);
                 container.appendChild(btn);
             });
@@ -976,7 +989,7 @@
             filtered.forEach(item => {
                 const card = document.createElement('div');
                 card.onclick = () => { pendingOrderQueue.push({item, qty: 1, temp: item.defaultTemp, size: 'REGULAR', isSet: false}); processPendingQueue(); };
-                card.className = "bg-white rounded-3xl p-4 shadow-md border border-slate-200 flex flex-col cursor-pointer hover:shadow-xl hover:border-blue-400 transition-all active:scale-95 relative overflow-hidden";
+                card.className = "bg-white rounded-[2rem] p-4 shadow-sm hover:shadow-xl hover:border-blue-400 transition-all active:scale-95 relative overflow-hidden border-2 border-transparent cursor-pointer";
                 
                 const badges = `
                     <div class="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
@@ -986,11 +999,11 @@
 
                 card.innerHTML = `
                     ${badges}
-                    <div class="w-full aspect-[4/3] rounded-2xl flex items-center justify-center text-7xl mb-4 bg-slate-100 relative">
-                        ${item.icon}
+                    <div class="w-full aspect-[4/3] rounded-2xl overflow-hidden mb-4 bg-slate-100 relative shadow-inner">
+                        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover">
                     </div>
-                    <h4 class="text-xl font-black text-slate-800 mb-1 leading-tight">${item.name}</h4>
-                    <p class="text-lg font-extrabold text-blue-600 mt-auto">${item.price.toLocaleString()}원</p>
+                    <h4 class="text-2xl font-black text-slate-800 mb-2 leading-tight px-1">${item.name}</h4>
+                    <p class="text-xl font-extrabold text-blue-600 mt-auto px-1">${item.price.toLocaleString()}원</p>
                 `;
                 grid.appendChild(card);
             });
@@ -1005,7 +1018,7 @@
             container.innerHTML = ''; let totalCount = 0;
 
             if (cart.length === 0) {
-                container.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-400 py-20 opacity-60"><i class="fas fa-shopping-basket text-6xl mb-4"></i><p class="text-xl font-bold">선택하신 상품이 없습니다</p></div>`;
+                container.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-400 py-20 opacity-60"><i class="fas fa-shopping-basket text-6xl mb-4"></i><p class="text-2xl font-bold">선택하신 상품이 없습니다</p></div>`;
                 btnCheckout.disabled = true; btnCheckout.className = "w-full bg-stone-300 text-stone-500 py-6 rounded-2xl text-2xl font-black transition-all flex justify-center items-center gap-3 cursor-not-allowed";
             } else {
                 cart.forEach(cartItem => {
@@ -1014,25 +1027,25 @@
                     row.className = "bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3 relative animate-[fadeIn_0.2s]";
                     
                     const tempLabel = cartItem.tempOption !== false 
-                        ? (cartItem.temp === 'ICE' ? '<span class="text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">❄️ 시원하게</span>' 
-                                                   : '<span class="text-xs font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">🔥 따뜻하게</span>') 
-                        : `<span class="text-xs font-black text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">${cartItem.defaultTemp === 'ICE' ? '🧊 ICE' : '🔥 HOT'}</span>`;
+                        ? (cartItem.temp === 'ICE' ? '<span class="text-sm font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">❄️ 시원하게</span>' 
+                                                   : '<span class="text-sm font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">🔥 따뜻하게</span>') 
+                        : `<span class="text-sm font-black text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">${cartItem.defaultTemp === 'ICE' ? '🧊 ICE' : '🔥 HOT'}</span>`;
                     
-                    const sizeLabel = cartItem.sizeOption && cartItem.size === 'LARGE' ? '<span class="text-xs font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200">⬆️ 라지(큰컵)</span>' : '';
+                    const sizeLabel = cartItem.sizeOption && cartItem.size === 'LARGE' ? '<span class="text-sm font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">⬆️ 라지(큰컵)</span>' : '';
 
                     row.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <div class="text-xl font-black text-slate-800 leading-tight">${cartItem.name}</div>
+                                <div class="text-2xl font-black text-slate-800 leading-tight">${cartItem.name}</div>
                                 <div class="mt-2 flex gap-1 flex-wrap">${tempLabel}${sizeLabel}</div>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
-                            <div class="font-extrabold text-rose-600 text-xl">${(cartItem.price * cartItem.qty).toLocaleString()}원</div>
-                            <div class="flex items-center gap-3 bg-slate-100 rounded-xl p-1 border border-slate-200">
-                                <button onclick="updateCartQty('${cartItem.cartId}', -1)" class="w-8 h-8 flex justify-center items-center rounded-lg bg-white text-slate-700 shadow-sm font-black active:scale-90">-</button>
-                                <span class="font-bold text-lg w-5 text-center">${cartItem.qty}</span>
-                                <button onclick="updateCartQty('${cartItem.cartId}', 1)" class="w-8 h-8 flex justify-center items-center rounded-lg bg-white text-slate-700 shadow-sm font-black active:scale-90">+</button>
+                        <div class="flex justify-between items-center pt-3 mt-1 border-t border-slate-100">
+                            <div class="font-extrabold text-rose-600 text-2xl">${(cartItem.price * cartItem.qty).toLocaleString()}원</div>
+                            <div class="flex items-center gap-3 bg-slate-100 rounded-xl p-1.5 border border-slate-200 shadow-inner">
+                                <button onclick="updateCartQty('${cartItem.cartId}', -1)" class="w-10 h-10 flex justify-center items-center rounded-lg bg-white text-slate-700 shadow-sm font-black text-2xl active:scale-90">-</button>
+                                <span class="font-black text-2xl w-6 text-center">${cartItem.qty}</span>
+                                <button onclick="updateCartQty('${cartItem.cartId}', 1)" class="w-10 h-10 flex justify-center items-center rounded-lg bg-white text-slate-700 shadow-sm font-black text-2xl active:scale-90">+</button>
                             </div>
                         </div>
                     `;
@@ -1046,8 +1059,8 @@
 
         function calculateTotal() { return cart.reduce((sum, item) => sum + (item.price * item.qty), 0); }
 
-        function subtractFromCart(itemId, temp, size, qty) {
-            const exist = cart.find(c => c.id === itemId && c.temp === temp && c.size === size);
+        function subtractFromCart(itemId, temp, size, isSet, qty) {
+            const exist = cart.find(c => c.id === itemId && c.temp === temp && c.size === size && c.isSet === isSet);
             if (exist) { exist.qty -= qty; if (exist.qty <= 0) { cart = cart.filter(c => c.cartId !== exist.cartId); } }
             renderCart();
         }
