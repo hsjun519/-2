@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>보이스 터치 스마트 키오스크 (AI 음성 답변 안내판)</title>
-    <!-- Tailwind CSS -->
+    <title>보이스 터치 스마트 키오스크 (웹 표준 완전판)</title>
+    <!-- Tailwind CSS (스타일은 그대로 유지합니다) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .scrollbar-none::-webkit-scrollbar { display: none; }
@@ -13,41 +13,49 @@
 </head>
 <body class="bg-gray-50 m-0 p-0 select-none">
 
+    <!-- 메인 레이아웃 -->
     <div id="app" class="flex flex-col h-screen overflow-hidden text-gray-900">
         
-        <!-- 상단 네비게이션 바 -->
+        <!-- 상단 바 -->
         <div class="bg-slate-900 text-white px-4 py-2.5 flex justify-between items-center text-xs md:text-sm shrink-0">
             <div class="flex items-center gap-2">
-                <span>🤖</span>
-                <span class="font-bold text-slate-300">AI 음성 질의응답 및 로컬 대기열 구동중</span>
+                <span>👥</span>
+                <span class="font-bold text-slate-300">실시간 가상 로컬 대기열 구동중</span>
             </div>
-            <div class="bg-slate-800 p-0.5 rounded-lg flex border border-slate-700">
-                <button id="btn-mode-kiosk" onclick="setAppMode('kiosk')" class="px-3 py-1 rounded-md font-bold transition-all bg-red-600 text-white">
-                    키오스크 주문
-                </button>
-                <button id="btn-mode-kitchen" onclick="setAppMode('kitchen')" class="px-3 py-1 rounded-md font-bold transition-all text-slate-400 hover:text-white flex items-center gap-1">
-                    실시간 주방보드
-                    <span id="kitchen-count" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black animate-bounce">0</span>
-                </button>
+            <div class="flex items-center gap-1.5">
+                <div class="bg-slate-800 p-0.5 rounded-lg flex border border-slate-700">
+                    <button id="btn-mode-kiosk" onclick="setAppMode('kiosk')" class="px-3 py-1 rounded-md font-bold transition-all bg-red-600 text-white">
+                        키오스크 주문
+                    </button>
+                    <button id="btn-mode-kitchen" onclick="setAppMode('kitchen')" class="px-3 py-1 rounded-md font-bold transition-all text-slate-400 hover:text-white flex items-center gap-1">
+                        실시간 주방보드
+                        <span id="kitchen-count" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black animate-bounce">0</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- 영수증 모달 -->
+        <!-- 영수증 모달 (초기 숨김) -->
         <div id="receipt-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 text-center">
                 <div class="text-5xl mb-3">🎉</div>
                 <h3 class="text-xl font-black text-gray-800">주문 완료!</h3>
+                <p class="text-gray-500 text-sm mt-1">대기번호를 꼭 기억해 주세요.</p>
+                
                 <div class="bg-gray-50 my-4 p-4 rounded-xl border border-dashed border-gray-200">
                     <div id="receipt-number" class="text-3xl font-black text-red-600">대기번호: --번</div>
                     <div id="receipt-date" class="text-xs text-gray-400 mt-2">--</div>
                     <div class="border-t border-gray-200 my-3"></div>
-                    <div id="receipt-items" class="text-left space-y-1 text-sm text-gray-700 max-h-36 overflow-y-auto"></div>
+                    <div id="receipt-items" class="text-left space-y-1 text-sm text-gray-700 max-h-36 overflow-y-auto">
+                        <!-- 영수증 아이템 동적 렌더링 -->
+                    </div>
                     <div class="border-t border-gray-200 my-3"></div>
                     <div class="flex justify-between font-extrabold text-base text-gray-900">
                         <span>최종 결제 금액</span>
                         <span id="receipt-total">0원</span>
                     </div>
                 </div>
+
                 <button onclick="closeReceipt()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-colors">
                     확인 및 닫기
                 </button>
@@ -57,22 +65,25 @@
         <!-- 메인 콘텐츠 영역 -->
         <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
             
-            <!-- 키오스크 메인 뷰 -->
+            <!-- 키오스크 화면 (kiosk-view) -->
             <div id="kiosk-view" class="flex-1 flex flex-col h-full overflow-hidden relative">
                 <header class="bg-red-600 text-white p-4 shadow-md flex justify-between items-center z-10 flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <span class="text-3xl">🍔</span>
                         <div>
                             <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-1.5 flex-wrap">
-                                인공지능 대화형 스마트 키오스크
+                                보이스 터치 스마트 키오스크
+                                <span class="bg-yellow-400 text-red-900 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse">Voice Loop ON</span>
                             </h1>
-                            <p class="text-xs text-red-100 hidden sm:block">주문뿐만 아니라 키오스크에게 궁금한 점을 질문해 보세요!</p>
+                            <p class="text-xs text-red-100 hidden sm:block">한번 켜면 끄기 전까지 마이크 허용 창 없이 대화하듯 주문할 수 있습니다.</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btn-tts" onclick="toggleTts()" class="p-2 rounded-full transition-all bg-red-500 text-white hover:bg-red-400">
+                        <!-- TTS 토글 버튼 -->
+                        <button id="btn-tts" onclick="toggleTts()" class="p-2 rounded-full transition-all bg-red-500 text-white hover:bg-red-400" title="음성 안내 켜기/끄기">
                             <span id="tts-icon">🔊</span>
                         </button>
+                        <!-- 음성 인식 시작 버튼 -->
                         <button id="btn-listen" onclick="toggleListening()" class="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold bg-white text-red-600 hover:bg-red-50 transition-all shadow-md">
                             <span id="listening-indicator" class="relative hidden">
                                 <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
@@ -84,31 +95,28 @@
                     </div>
                 </header>
 
-                <!-- 음성 가이드 및 질문 추천 팁 바 -->
-                <div class="bg-gradient-to-r from-teal-50 to-emerald-50 px-4 py-3 border-b border-emerald-100 flex flex-col gap-1 shrink-0 text-xs md:text-sm text-teal-900 font-medium">
-                    <div class="flex items-center gap-2">
-                        <span>💡</span>
-                        <span class="bg-teal-100 text-teal-800 px-2 py-0.5 rounded font-bold">추천 질문 (직접 말해보세요!)</span>
-                        <span class="text-gray-600">"디카페인이 뭐야?", "제일 잘 나가는 메뉴 추천해줘", "화장실 어디야?"</span>
+                <!-- 음성 가이드 바 -->
+                <div class="bg-gradient-to-r from-teal-50 to-emerald-50 px-4 py-3 border-b border-emerald-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 shrink-0">
+                    <div class="flex items-center gap-2 text-xs md:text-sm text-teal-900 font-medium">
+                        <span>🛠️</span>
+                        <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">음성명령 가이드</span>
+                        <span>"불고기버거 두개 담아줘" -> "콜라 하나 추가해줘" -> "결제해줘/계산해줘"</span>
                     </div>
                 </div>
 
-                <!-- 실시간 인식 및 대화창 피드백 영역 -->
+                <!-- 실시간 음성 및 인식 피드백 영역 -->
                 <div id="voice-feedback-area" class="mx-4 mt-4 p-4 rounded-xl bg-white shadow-sm border border-gray-100 flex flex-col gap-2 transition-all duration-300 hidden">
                     <div id="transcript-row" class="flex items-center gap-2 text-gray-600 text-sm hidden">
                         <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-ping"></span>
-                        <span class="font-semibold text-gray-500">내가 한 말:</span>
+                        <span class="font-semibold text-gray-500">실시간 인식:</span>
                         <span id="transcript-text" class="text-gray-900 font-bold bg-gray-50 px-3 py-1 rounded border border-gray-100"></span>
                     </div>
-                    <div id="feedback-row" class="text-blue-600 font-bold text-base md:text-lg animate-fade-in flex items-start gap-1.5 hidden">
-                        <span class="text-xl">🤖</span> 
-                        <div class="bg-blue-50 text-blue-900 px-3 py-2 rounded-xl border border-blue-100 max-w-xl">
-                            <span id="feedback-text"></span>
-                        </div>
+                    <div id="feedback-row" class="text-red-600 font-bold text-base md:text-lg animate-bounce flex items-center gap-1.5 hidden">
+                        <span>🎯</span> <span id="feedback-text"></span>
                     </div>
                 </div>
 
-                <!-- 카테고리 탭 -->
+                <!-- 카테고리 메뉴 탭 -->
                 <div id="category-tabs" class="flex gap-2 p-4 overflow-x-auto scrollbar-none shrink-0">
                     <button onclick="filterCategory('전체')" class="category-tab px-6 py-2.5 rounded-xl font-bold text-base whitespace-nowrap transition-all shadow-sm bg-red-600 text-white">전체</button>
                     <button onclick="filterCategory('버거')" class="category-tab px-6 py-2.5 rounded-xl font-bold text-base whitespace-nowrap transition-all shadow-sm bg-white text-gray-600 hover:bg-gray-100">버거</button>
@@ -116,13 +124,15 @@
                     <button onclick="filterCategory('음료')" class="category-tab px-6 py-2.5 rounded-xl font-bold text-base whitespace-nowrap transition-all shadow-sm bg-white text-gray-600 hover:bg-gray-100">음료</button>
                 </div>
 
-                <!-- 메뉴 그리드 -->
+                <!-- 메뉴 카드 리스트 그리드 -->
                 <div class="flex-1 overflow-y-auto p-4 pt-0">
-                    <div id="menu-grid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20"></div>
+                    <div id="menu-grid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
+                        <!-- 메뉴 카드들이 동적으로 이곳에 꽂힙니다 -->
+                    </div>
                 </div>
             </div>
 
-            <!-- 오른쪽 장바구니 -->
+            <!-- 키오스크 화면 오른쪽 장바구니 영역 -->
             <div id="sidebar-cart" class="w-full md:w-[380px] bg-white shadow-2xl flex flex-col h-[40vh] md:h-full border-t border-gray-200 md:border-t-0 md:border-l border-gray-100 z-10 overflow-hidden">
                 <div class="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
@@ -135,7 +145,10 @@
                     </button>
                 </div>
 
-                <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50"></div>
+                <!-- 장바구니 리스트 아이템 -->
+                <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50">
+                    <!-- 아이템 리스트 또는 빈 상태 레이아웃이 여기에 들어갑니다 -->
+                </div>
 
                 <div class="p-4 bg-white border-t border-gray-200 pb-8 md:pb-4 shrink-0">
                     <div class="flex justify-between items-center mb-4">
@@ -146,27 +159,41 @@
                         </div>
                     </div>
                     <button id="btn-checkout" onclick="executeCheckout()" class="w-full py-3 rounded-xl text-base font-black flex justify-center items-center gap-2 transition-all bg-gray-200 text-gray-400 cursor-not-allowed" disabled>
-                        <span>✅</span> 결제하기
+                        <span>✅</span>
+                        결제하기
                     </button>
                 </div>
             </div>
 
-            <!-- 실시간 주방 보드 -->
+            <!-- 실시간 주방 보드 화면 (kitchen-view, 초기 숨김) -->
             <div id="kitchen-view" class="flex-1 flex flex-col p-6 overflow-y-auto bg-slate-100 hidden">
                 <div class="flex justify-between items-center mb-6 shrink-0">
                     <div>
                         <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">
-                            <span>🕒</span> 실시간 주방 조리 대기 화면
+                            <span>🕒</span>
+                            실시간 주방 조리 대기 화면
                         </h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            손님이 키오스크 화면에서 결제하면 아래에 실시간으로 등록됩니다.
+                        </p>
+                    </div>
+                    <div class="bg-white px-3 py-1.5 rounded-xl shadow-sm border border-slate-200 flex items-center gap-1.5 text-xs">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
+                        <span class="font-bold text-slate-600">로컬 실시간 통신 구동 중</span>
                     </div>
                 </div>
-                <div id="kitchen-orders-container" class="flex-1"></div>
+
+                <div id="kitchen-orders-container" class="flex-1">
+                    <!-- 주방 대기열 목록 -->
+                </div>
             </div>
 
         </div>
     </div>
 
+    <!-- 순수 스크립트 작성 (Babel과 꼬임 없이 100% 작동) -->
     <script>
+        // 메뉴 기초 데이터
         const MENU_DATA = [
             { id: 1, category: '버거', name: '불고기버거', price: 4500, icon: '🍔', keywords: ['불고기', '불고기버거', '불고기 버거'] },
             { id: 2, category: '버거', name: '치즈버거', price: 4000, icon: '🧀', keywords: ['치즈', '치즈버거', '치즈 버거'] },
@@ -178,26 +205,7 @@
             { id: 8, category: '음료', name: '사이다', price: 1500, icon: '🥤', keywords: ['사이다', '스프라이트'] },
         ];
 
-        // 🌟 AI 질문 답변용 미리 구성된 시나리오 데이터베이스
-        const AI_QA_DATABASE = [
-            {
-                keywords: ['디카페인', '디 카페인', '카페인 없는'],
-                answer: "디카페인은 커피에서 카페인 성분을 대부분 제거한 음료입니다. 카페인에 민감하시거나 늦은 밤에 커피를 드시고 싶을 때 추천해 드립니다!"
-            },
-            {
-                keywords: ['추천', '제일 잘 나가', '맛있는', '인기'],
-                answer: "우리 매장의 대표 메뉴는 단연 달콤 짭조름한 '불고기버거'와 바삭한 '감자튀김' 조합입니다! 시원한 콜라와 함께 드셔보세요."
-            },
-            {
-                keywords: ['화장실', '화장실이', '어디'],
-                answer: "화장실은 키오스크 뒤쪽 통로를 통해 나가셔서 건물 우측으로 돌아가시면 위치해 있습니다. 비밀번호는 따로 없습니다!"
-            },
-            {
-                keywords: ['주차', '주차장', '차'],
-                answer: "저희 매장 이용 고객님은 전용 주차장을 1시간 동안 무료로 이용하실 수 있습니다. 나가실 때 카운터에 차량 번호를 꼭 말씀해 주세요."
-            }
-        ];
-
+        // 전역 어플리케이션 상태값
         let cart = [];
         let orders = [];
         let activeCategory = '전체';
@@ -206,6 +214,7 @@
         let isTtsMuted = false;
         let shouldRestartRecognition = false;
 
+        // 음성 인식 객체
         let recognition = null;
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -219,7 +228,7 @@
                 isListening = true;
                 updateListeningUI();
                 showVoiceArea(true);
-                setTranscriptText('듣고 있습니다... 무엇이든 말씀해 주세요.');
+                setTranscriptText('듣고 있습니다... (예: "불고기버거 2개 추가", "결제해줘")');
             };
 
             recognition.onresult = (event) => {
@@ -234,6 +243,7 @@
             };
 
             recognition.onerror = (event) => {
+                console.error(event.error);
                 if (event.error === 'not-allowed') {
                     setTranscriptText('마이크 접근 권한이 거부되었습니다.');
                     isListening = false;
@@ -245,45 +255,59 @@
             recognition.onend = () => {
                 isListening = false;
                 updateListeningUI();
+                
+                // 마이크 꺼진 뒤 자동 재개 조건 (연속인식 루프 보장)
                 if (shouldRestartRecognition) {
                     setTimeout(() => {
-                        try { recognition.start(); } catch (e) { console.error(e); }
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            console.error(e);
+                        }
                     }, 300);
                 } else {
-                    setTimeout(() => { if(!isListening) showVoiceArea(false); }, 7000);
+                    setTimeout(() => {
+                        if(!isListening) showVoiceArea(false);
+                    }, 4000);
                 }
             };
         }
 
-        // 목소리 출력 엔진 (소리 나게 하는 핵심 기능!)
+        // 음성 피드백 TTS 
         function speakFeedback(text) {
             if (isTtsMuted) return;
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // 겹치지 않게 이전 음성 초기화
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ko-KR';
-                utterance.rate = 1.05; // 읽는 속도 (1.0이 표준)
+                utterance.rate = 1.1; 
                 window.speechSynthesis.speak(utterance);
             }
         }
 
+        // 음성 끄기 켜기 전환
         function toggleTts() {
             isTtsMuted = !isTtsMuted;
             document.getElementById('tts-icon').innerText = isTtsMuted ? '🔇' : '🔊';
-            showAiResponse(isTtsMuted ? '🔇 안내 음성을 껐습니다.' : '🔊 안내 음성을 켰습니다.');
+            showTemporaryFeedback(isTtsMuted ? '🔇 음성 안내를 껐습니다.' : '🔊 음성 안내를 켰습니다.');
         }
 
+        // 마이크 버튼 전환 제어
         function toggleListening() {
             if (!recognition) {
-                alert('음성 인식을 지원하지 않는 브라우저입니다.');
+                alert('이 브라우저는 음성 인식을 지원하지 않습니다. Chrome/Edge 등을 이용해 주세요.');
                 return;
             }
             if (isListening) {
                 shouldRestartRecognition = false;
                 recognition.stop();
             } else {
-                shouldRestartRecognition = true;
-                try { recognition.start(); } catch (e) { console.error(e); }
+                shouldRestartRecognition = true; // 무한 반복 활성화
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.error(e);
+                }
             }
         }
 
@@ -291,6 +315,7 @@
             const btn = document.getElementById('btn-listen');
             const text = document.getElementById('listen-text');
             const ind = document.getElementById('listening-indicator');
+            
             if (isListening) {
                 btn.className = "flex items-center gap-2 px-4 py-2.5 rounded-full font-bold bg-yellow-400 text-red-950 scale-105 border-2 border-yellow-300 shadow-yellow-400/50 transition-all";
                 text.innerText = "음성인식 대기중";
@@ -302,24 +327,14 @@
             }
         }
 
-        // 음성 분석 및 처리 분기점
+        // 음성 명령어 전처리 핵심 분기점 (오류 원격 차단 및 빠른 결제 처리)[cite: 1]
         function processVoiceCommand(command) {
             const cleanCommand = command.trim();
 
-            // 1순위: 안내 질문 패킷 매칭 검사 ("디카페인이 뭐야?" 등)
-            for (const qa of AI_QA_DATABASE) {
-                const found = qa.keywords.some(keyword => cleanCommand.includes(keyword));
-                if (found) {
-                    showAiResponse(qa.answer);
-                    speakFeedback(qa.answer); // 로봇이 직접 소리내어 답변함!
-                    return; // 처리 완료 시 주문 로직 건너뛰고 함수 종료
-                }
-            }
-
-            // 2순위: 계산 및 결제 명령어 우회 차단[cite: 1]
+            // 계산/결제 키워드 탐색 시 메뉴 검색을 원천 우회하고 탈출합니다[cite: 1]
             if (/(결제|계산|주문\s*완료|완료해|돈\s*내|살게|살래|결재)/.test(cleanCommand)) {
                 if (cart.length === 0) {
-                    showAiResponse('🛒 장바구니에 상품을 먼저 담아주세요.');
+                    showTemporaryFeedback('🛒 담긴 메뉴가 없습니다.');
                     speakFeedback('장바구니가 비어 있어 결제할 수 없습니다.');
                     return; //[cite: 1]
                 }
@@ -327,7 +342,6 @@
                 return; //[cite: 1]
             }
 
-            // 3순위: 기본 상품 추가/삭제 처리
             const isSubtraction = /(빼|취소|제거|삭제|줄여)/.test(cleanCommand);
             let matchedAny = false;
             let addedList = [];
@@ -358,15 +372,15 @@
 
             if (matchedAny) {
                 if (addedList.length > 0) {
-                    showAiResponse(`🛒 장바구니에 ${addedList.join(', ')}를 추가했습니다.`);
+                    showTemporaryFeedback(`🗣️ 장바구니에 ${addedList.join(', ')} 추가`);
                     speakFeedback(`${addedList.join(', ')} 담았습니다.`);
                 }
                 if (removedList.length > 0) {
-                    showAiResponse(`🗑️ 장바구니에서 ${removedList.join(', ')}를 제외했습니다.`);
+                    showTemporaryFeedback(`🗣️ 장바구니에서 ${removedList.join(', ')} 제거`);
                     speakFeedback(`${removedList.join(', ')} 제외했습니다.`);
                 }
             } else {
-                showAiResponse('🤔 말씀하신 단어를 잘 알아듣지 못했어요. 다시 한번 말씀해 주세요.');
+                showTemporaryFeedback('🤔 메뉴를 찾지 못했습니다. 다시 한번 말씀해 주세요.');
                 speakFeedback('다시 한번 말씀해 주세요.');
             }
         }
@@ -375,38 +389,46 @@
             const keywordIdx = command.indexOf(keyword);
             if (keywordIdx === -1) return 1;
             const context = command.substring(Math.max(0, keywordIdx - 4), Math.min(command.length, keywordIdx + keyword.length + 12));
+
             const digitMatch = context.match(/(\d+)\s*개/);
             if (digitMatch) return parseInt(digitMatch[1], 10);
-            
+
             const koreanNumMap = [
                 { regex: /(한\s*개|하나)/, value: 1 },
                 { regex: /(두\s*개|둘)/, value: 2 },
-                { regex: /(세\s*개|셋)/, value: 3 }
+                { regex: /(세\s*개|셋)/, value: 3 },
+                { regex: /(네\s*개|넷)/, value: 4 },
+                { regex: /(다섯\s*개|다섯)/, value: 5 }
             ];
+
             for (const num of koreanNumMap) {
                 if (num.regex.test(context)) return num.value;
             }
             return 1;
         }
 
-        // 장바구니 & 메뉴판 화면 렌더링 코드들
+        // UI 렌더링 함수군 (React 렌더 엔진 대체)
         function renderMenu() {
             const grid = document.getElementById('menu-grid');
             grid.innerHTML = '';
-            const filtered = activeCategory === '전체' ? MENU_DATA : MENU_DATA.filter(item => item.category === activeCategory);
+            
+            const filtered = activeCategory === '전체' 
+                ? MENU_DATA 
+                : MENU_DATA.filter(item => item.category === activeCategory);
 
             filtered.forEach(item => {
                 const card = document.createElement('button');
                 card.onclick = () => {
                     addManyToCart(item, 1);
                     speakFeedback(`${item.name} 1개 담았습니다.`);
-                    showAiResponse(`👆 장바구니에 "${item.name}"을 담았습니다.`);
+                    showTemporaryFeedback(`👆 "${item.name}" 담기 완료!`);
                 };
                 card.className = "bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-between gap-3 border border-gray-100 hover:border-red-200 group";
                 card.innerHTML = `
                     <div class="text-5xl transition-transform duration-200 group-hover:scale-110">${item.icon}</div>
                     <div class="text-center">
                         <div class="text-base font-bold text-gray-800 group-hover:text-red-600 transition-colors">${item.name}</div>
+                        <div class="text-gray-400 text-[10px] mt-0.5">말하기: "${item.name}"</div>
                     </div>
                     <div class="text-sm text-red-600 font-extrabold bg-red-50 w-full py-1.5 rounded-xl">
                         ${item.price.toLocaleString()}원
@@ -421,47 +443,66 @@
             const totalText = document.getElementById('cart-total-price');
             const badge = document.getElementById('cart-count-badge');
             const btnCheckout = document.getElementById('btn-checkout');
+
             container.innerHTML = '';
-            let totalCount = 0; let totalPrice = 0;
+
+            let totalCount = 0;
+            let totalPrice = 0;
 
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="h-full flex flex-col items-center justify-center text-gray-400 p-8">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                            <span>🛒</span>
+                        </div>
                         <p class="text-center text-xs font-semibold text-gray-500">장바구니가 비어 있습니다.</p>
-                    </div>`;
+                    </div>
+                `;
                 btnCheckout.disabled = true;
                 btnCheckout.className = "w-full py-3 rounded-xl text-base font-black flex justify-center items-center gap-2 transition-all bg-gray-200 text-gray-400 cursor-not-allowed";
             } else {
                 cart.forEach(cartItem => {
                     totalCount += cartItem.quantity;
                     totalPrice += cartItem.item.price * cartItem.quantity;
+
                     const row = document.createElement('div');
                     row.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200/60 shadow-sm";
                     row.innerHTML = `
                         <div class="flex items-center gap-2">
-                            <span class="text-2xl">${cartItem.item.icon}</span>
+                            <span class="text-2xl p-1 bg-gray-50 rounded-lg">${cartItem.item.icon}</span>
                             <div>
-                                <div class="font-bold text-gray-800 text-xs">${cartItem.item.name}</div>
-                                <div class="text-red-600 text-xs font-semibold">${(cartItem.item.price * cartItem.quantity).toLocaleString()}원</div>
+                                <div class="font-bold text-gray-800 text-xs md:text-sm">${cartItem.item.name}</div>
+                                <div class="text-red-600 text-xs font-semibold">
+                                    ${(cartItem.item.price * cartItem.quantity).toLocaleString()}원
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-lg">
-                            <button onclick="changeCartQty(${cartItem.item.id}, -1)" class="p-1 text-gray-500 font-bold">-</button>
-                            <span class="font-bold text-xs w-4 text-center">${cartItem.quantity}</span>
-                            <button onclick="changeCartQty(${cartItem.item.id}, 1)" class="p-1 text-gray-500 font-bold">+</button>
-                        </div>`;
+                        <div class="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
+                            <button onclick="changeCartQty(${cartItem.item.id}, -1)" class="p-1 hover:bg-gray-200 rounded text-gray-500 font-extrabold">-</button>
+                            <span class="font-bold text-xs w-4 text-center text-gray-800">${cartItem.quantity}</span>
+                            <button onclick="changeCartQty(${cartItem.item.id}, 1)" class="p-1 hover:bg-gray-200 rounded text-gray-500 font-extrabold">+</button>
+                            <button onclick="removeCartItem(${cartItem.item.id})" class="ml-1 p-1 text-gray-300 hover:text-red-500 rounded">🗑️</button>
+                        </div>
+                    `;
                     container.appendChild(row);
                 });
+
                 btnCheckout.disabled = false;
                 btnCheckout.className = "w-full py-3 rounded-xl text-base font-black flex justify-center items-center gap-2 transition-all bg-red-600 text-white hover:bg-red-700 shadow-lg cursor-pointer";
             }
+
             totalText.innerText = totalPrice.toLocaleString();
             badge.innerText = `${totalCount}개`;
         }
 
+        // 장바구니 컨트롤 엔진
         function addManyToCart(item, qty) {
             const exist = cart.find(c => c.item.id === item.id);
-            if (exist) { exist.quantity += qty; } else { cart.push({ item, quantity: qty }); }
+            if (exist) {
+                exist.quantity += qty;
+            } else {
+                cart.push({ item, quantity: qty });
+            }
             renderCart();
         }
 
@@ -469,7 +510,9 @@
             const exist = cart.find(c => c.item.id === item.id);
             if (exist) {
                 exist.quantity -= qty;
-                if (exist.quantity <= 0) cart = cart.filter(c => c.item.id !== item.id);
+                if (exist.quantity <= 0) {
+                    cart = cart.filter(c => c.item.id !== item.id);
+                }
             }
             renderCart();
         }
@@ -478,26 +521,43 @@
             const exist = cart.find(c => c.item.id === id);
             if (exist) {
                 exist.quantity += delta;
-                if (exist.quantity <= 0) cart = cart.filter(c => c.item.id !== id);
+                if (exist.quantity <= 0) {
+                    cart = cart.filter(c => c.item.id !== id);
+                }
             }
             renderCart();
         }
 
-        function clearCart() { cart = []; renderCart(); speakFeedback("장바구니를 비웠습니다."); }
+        function removeCartItem(id) {
+            cart = cart.filter(c => c.item.id !== id);
+            renderCart();
+        }
 
+        function clearCart() {
+            cart = [];
+            renderCart();
+            speakFeedback("장바구니를 모두 비웠습니다.");
+        }
+
+        // 카테고리 필터링 제어
         function filterCategory(cat) {
             activeCategory = cat;
             const tabs = document.querySelectorAll('.category-tab');
             tabs.forEach(tab => {
-                tab.className = tab.innerText === cat 
-                    ? "category-tab px-6 py-2.5 rounded-xl font-bold text-base bg-red-600 text-white"
-                    : "category-tab px-6 py-2.5 rounded-xl font-bold text-base bg-white text-gray-600 hover:bg-gray-100";
+                if (tab.innerText === cat) {
+                    tab.className = "category-tab px-6 py-2.5 rounded-xl font-bold text-base whitespace-nowrap transition-all shadow-sm bg-red-600 text-white";
+                } else {
+                    tab.className = "category-tab px-6 py-2.5 rounded-xl font-bold text-base whitespace-nowrap transition-all shadow-sm bg-white text-gray-600 hover:bg-gray-100";
+                }
             });
             renderMenu();
         }
 
+        // 영수증 및 주문 전송 결제 로직
         function executeCheckout() {
             if (cart.length === 0) return;
+
+            // 결제 진행 시 연속 음성 인식 루프 정지
             shouldRestartRecognition = false;
             if (recognition) recognition.stop();
 
@@ -505,86 +565,216 @@
             const dateStr = new Date().toLocaleString('ko-KR');
             const total = cart.reduce((sum, c) => sum + (c.item.price * c.quantity), 0);
 
+            // 주방 보드로 전송할 신규 주문 객체 빌드
             const newOrder = {
                 id: Date.now().toString(),
                 orderNumber: orderNum,
                 date: dateStr,
-                items: cart.map(c => ({ name: c.item.name, icon: c.item.icon, quantity: c.quantity })),
+                items: cart.map(c => ({
+                    name: c.item.name,
+                    icon: c.item.icon,
+                    quantity: c.quantity
+                })),
                 totalPrice: total,
                 status: '대기중'
             };
-            orders.unshift(newOrder);
+
+            orders.unshift(newOrder); // 주방 대기열 추가
             updateKitchenBadge();
 
+            // 영수증 모달 데이터 채우기
             document.getElementById('receipt-number').innerText = `대기번호: ${orderNum}번`;
             document.getElementById('receipt-date').innerText = dateStr;
             document.getElementById('receipt-total').innerText = `${total.toLocaleString()}원`;
+
             const rItems = document.getElementById('receipt-items');
             rItems.innerHTML = '';
             cart.forEach(c => {
-                rItems.innerHTML += `<div class="flex justify-between"><span>${c.item.icon} ${c.item.name} x ${c.quantity}</span><span>${(c.item.price * c.quantity).toLocaleString()}원</span></div>`;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "flex justify-between";
+                itemDiv.innerHTML = `
+                    <span>${c.item.icon} ${c.item.name} x ${c.quantity}</span>
+                    <span class="font-semibold">${(c.item.price * c.quantity).toLocaleString()}원</span>
+                `;
+                rItems.appendChild(itemDiv);
             });
 
+            // 모달 오픈
             document.getElementById('receipt-modal').classList.remove('hidden');
-            cart = []; renderCart();
+
+            // 초기화
+            cart = [];
+            renderCart();
             speakFeedback(`결제가 완료되었습니다. 대기번호는 ${orderNum}번입니다. 감사합니다.`);
         }
 
-        function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
+        function closeReceipt() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
 
-        // AI 답변 컴포넌트 제어 유틸리티
+        // 주방 보드 렌더링 및 대기열 제어
+        function renderKitchen() {
+            const container = document.getElementById('kitchen-orders-container');
+            container.innerHTML = '';
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full min-h-[300px] bg-white rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-8">
+                        <span class="text-5xl animate-pulse">📝</span>
+                        <h3 class="text-base font-bold text-slate-700 mt-4">대기 중인 주방 주문이 없습니다</h3>
+                        <p class="text-slate-400 text-xs mt-1 text-center">
+                            상단 '키오스크 주문' 탭으로 돌아가 주문을 완료해 주세요!
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
+
+            orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl p-4 shadow-sm border transition-all ${
+                    order.status === '조리중' ? 'border-orange-300 ring-2 ring-orange-100' : order.status === '픽업대기' ? 'border-indigo-300 ring-2 ring-indigo-100' : 'border-slate-200'
+                }`;
+
+                let itemsHtml = '';
+                order.items.forEach(i => {
+                    itemsHtml += `
+                        <div class="flex justify-between items-center text-xs">
+                            <div class="flex items-center gap-1">
+                                <span>${i.icon}</span>
+                                <span class="font-bold text-slate-800">${i.name}</span>
+                            </div>
+                            <span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                                ${i.quantity}개
+                            </span>
+                        </div>
+                    `;
+                });
+
+                let controlBtn = '';
+                if (order.status === '대기중') {
+                    controlBtn = `<button onclick="updateOrderStatus('${order.id}', '조리중')" class="col-span-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-1.5 rounded text-xs">조리 시작</button>`;
+                } else if (order.status === '조리중') {
+                    controlBtn = `<button onclick="updateOrderStatus('${order.id}', '픽업대기')" class="col-span-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs">조리 완료 (호출)</button>`;
+                } else if (order.status === '픽업대기') {
+                    controlBtn = `<button onclick="updateOrderStatus('${order.id}', '완료')" class="col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs">수령 완료</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start border-b border-slate-100 pb-2 mb-3">
+                        <div>
+                            <span class="bg-slate-900 text-white text-xs px-2.5 py-0.5 rounded font-black">
+                                ${order.orderNumber}번 주문
+                            </span>
+                            <p class="text-[10px] text-slate-400 mt-1">${order.date}</p>
+                        </div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                            order.status === '대기중' ? 'bg-yellow-100 text-yellow-800' : order.status === '조리중' ? 'bg-orange-100 text-orange-800' : 'bg-indigo-100 text-indigo-800'
+                        }">
+                            ${order.status}
+                        </span>
+                    </div>
+                    <div class="space-y-2 min-h-[80px]">
+                        ${itemsHtml}
+                    </div>
+                    <div class="border-t border-slate-100 pt-2 mt-3 flex justify-between items-center text-xs mb-3">
+                        <span class="text-slate-400">결제총액</span>
+                        <span class="font-extrabold text-red-600">${order.totalPrice.toLocaleString()}원</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        ${controlBtn}
+                    </div>
+                `;
+                wrapper.appendChild(card);
+            });
+
+            container.appendChild(wrapper);
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            if (newStatus === '완료') {
+                orders = orders.filter(o => o.id !== id);
+                speakFeedback("주문 수령이 완료되었습니다.");
+            } else {
+                orders = orders.map(o => o.id === id ? { ...o, status: newStatus } : o);
+                speakFeedback(`주문 상태가 ${newStatus}으로 변경되었습니다.`);
+            }
+            updateKitchenBadge();
+            renderKitchen();
+        }
+
+        function updateKitchenBadge() {
+            const badge = document.getElementById('kitchen-count');
+            if (orders.length > 0) {
+                badge.innerText = orders.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // 화면 탭 전환 기능
+        function setAppMode(mode) {
+            appMode = mode;
+            const btnKiosk = document.getElementById('btn-mode-kiosk');
+            const btnKitchen = document.getElementById('btn-mode-kitchen');
+            const viewKiosk = document.getElementById('kiosk-view');
+            const sidebarCart = document.getElementById('sidebar-cart');
+            const viewKitchen = document.getElementById('kitchen-view');
+
+            if (mode === 'kiosk') {
+                btnKiosk.className = "px-3 py-1 rounded-md font-bold transition-all bg-red-600 text-white";
+                btnKitchen.className = "px-3 py-1 rounded-md font-bold transition-all text-slate-400 hover:text-white flex items-center gap-1";
+                viewKiosk.classList.remove('hidden');
+                sidebarCart.classList.remove('hidden');
+                viewKitchen.classList.add('hidden');
+            } else {
+                btnKiosk.className = "px-3 py-1 rounded-md font-bold transition-all text-slate-400 hover:text-white";
+                btnKitchen.className = "px-3 py-1 rounded-md font-bold transition-all bg-indigo-600 text-white flex items-center gap-1";
+                viewKiosk.classList.add('hidden');
+                sidebarCart.classList.add('hidden');
+                viewKitchen.classList.remove('hidden');
+                renderKitchen();
+            }
+        }
+
+        // 피드백 영역 제어 유틸리티
         function showVoiceArea(show) {
             const area = document.getElementById('voice-feedback-area');
-            if (show) area.classList.remove('hidden'); else area.classList.add('hidden');
+            if (show) area.classList.remove('hidden');
+            else area.classList.add('hidden');
         }
 
         function setTranscriptText(text) {
             const row = document.getElementById('transcript-row');
             const span = document.getElementById('transcript-text');
-            if (text) { row.classList.remove('hidden'); span.innerText = text; } else { row.classList.add('hidden'); }
+            if (text) {
+                row.classList.remove('hidden');
+                span.innerText = text;
+            } else {
+                row.classList.add('hidden');
+            }
         }
 
-        function showAiResponse(msg) {
+        function showTemporaryFeedback(msg) {
             const row = document.getElementById('feedback-row');
             const span = document.getElementById('feedback-text');
             showVoiceArea(true);
             row.classList.remove('hidden');
             span.innerText = msg;
+            setTimeout(() => {
+                row.classList.add('hidden');
+            }, 4500);
         }
 
-        function setAppMode(mode) {
-            appMode = mode;
-            const viewKiosk = document.getElementById('kiosk-view');
-            const sidebarCart = document.getElementById('sidebar-cart');
-            const viewKitchen = document.getElementById('kitchen-view');
-            
-            // 버튼 토글 디자인 클래스 스왑 생략 (간결화)
-            if (mode === 'kiosk') {
-                viewKiosk.classList.remove('hidden'); sidebarCart.classList.remove('hidden'); viewKitchen.classList.add('hidden');
-            } else {
-                viewKiosk.classList.add('hidden'); sidebarCart.classList.add('hidden'); viewKitchen.classList.remove('hidden');
-                renderKitchen();
-            }
-        }
-
-        function renderKitchen() {
-            const container = document.getElementById('kitchen-orders-container');
-            container.innerHTML = '';
-            if (orders.length === 0) {
-                container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400">대기 주문 없음</div>`;
-                return;
-            }
-            orders.forEach(o => {
-                container.innerHTML += `<div class="bg-white p-4 rounded-xl border mb-2"><b>${o.orderNumber}번 주문</b> (${o.status})</div>`;
-            });
-        }
-
-        function updateKitchenBadge() {
-            const badge = document.getElementById('kitchen-count');
-            if (orders.length > 0) { badge.innerText = orders.length; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
-        }
-
-        window.onload = () => { renderMenu(); renderCart(); };
+        // 앱 초기화 로드 실행
+        window.onload = () => {
+            renderMenu();
+            renderCart();
+        };
     </script>
 </body>
 </html>
