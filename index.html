@@ -9,7 +9,6 @@
     <style>
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
-        /* 어르신들을 위한 가독성 높은 거대 폰트 및 애니메이션 정의 */
         .senior-text { font-size: 1.25rem; line-height: 2rem; }
     </style>
 </head>
@@ -33,7 +32,7 @@
             </div>
         </div>
 
-        <!-- 🌟 어르신 전용 메뉴 설명 및 옵션 선택 모달 팝업창 -->
+        <!-- 어르신 전용 메뉴 설명 및 옵션 선택 모달 팝업창 -->
         <div id="senior-explain-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl border-4 border-amber-500 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-start mb-4">
@@ -53,7 +52,7 @@
                     <p id="modal-item-description" class="text-gray-800 font-bold text-xl leading-relaxed">여기에 어르신 눈높이에 맞춘 쉬운 설명이 들어갑니다.</p>
                 </div>
 
-                <!-- 수량 변경 구역 (크고 직관적이게 변경) -->
+                <!-- 수량 변경 구역 -->
                 <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-200 mb-6">
                     <span class="text-xl font-black text-gray-700">개수 선택</span>
                     <div class="flex items-center gap-6">
@@ -107,7 +106,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <!-- 음성 주문 상시 오픈 버튼 -->
+                        <!-- 음성 주문 버튼 -->
                         <button id="btn-listen" onclick="toggleListening()" class="flex items-center gap-2 px-6 py-3 rounded-full font-black bg-white text-red-600 hover:bg-red-50 transition-all shadow-lg text-lg border-2 border-red-500">
                             <span id="listening-indicator" class="relative hidden">
                                 <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span>
@@ -119,7 +118,7 @@
                     </div>
                 </header>
 
-                <!-- 어르신들이 자주 하시는 "이런 게 뭐야?" 원터치 질문 해결 패널 -->
+                <!-- 질문 추천 팁 바 -->
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3.5 border-b border-blue-100 flex flex-col gap-2 shrink-0">
                     <div class="flex items-center gap-2 flex-wrap">
                         <span class="bg-blue-600 text-white text-sm font-black px-3 py-1 rounded-lg">어르신 전용 큰 질문 버튼</span>
@@ -158,11 +157,9 @@
                     <button onclick="filterCategory('음료')" class="category-tab px-8 py-3.5 rounded-2xl font-black text-xl whitespace-nowrap transition-all shadow-md bg-white text-gray-700 hover:bg-gray-100">🥤 커피/음료수</button>
                 </div>
 
-                <!-- 메뉴 그리드 영역 (글씨 크기 및 카드 디자인 확대) -->
+                <!-- 메뉴 그리드 영역 -->
                 <div class="flex-1 overflow-y-auto p-4 pt-0">
-                    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-24">
-                        <!-- 동적 카드 꽂힘 -->
-                    </div>
+                    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pb-24"></div>
                 </div>
             </div>
 
@@ -209,7 +206,6 @@
     </div>
 
     <script>
-        // 어르신들에게 진입 장벽이 높은 외래어 중심의 메뉴판 재구성
         const MENU_DATA = [
             { id: 1, category: '버거', name: '콰트로치즈버거', price: 6500, icon: '🍔', translation: '네 가지 치즈 햄버거', description: "콰트로는 숫자 4를 뜻합니다. 체다, 모짜렐라 등 고소하고 진한 네 가지 종류의 맛있는 치즈가 고기 패티와 함께 가득 들어간 부드러운 햄버거입니다.", keywords: ['콰트로', '콰트로치즈', '치즈버거', '치즈 버거'] },
             { id: 2, category: '버거', name: '쉬림프버거', price: 5500, icon: '🍤', translation: '탱글탱글 새우 햄버거', description: "쉬림프는 새우를 뜻합니다. 통통하고 고소한 새우를 바삭하게 튀겨내어 소스와 함께 빵 사이에 넣은 담백한 버거입니다.", keywords: ['쉬림프', '쉬림프버거', '새우버거', '새우 버거'] },
@@ -223,7 +219,6 @@
             { id: 10, category: '음료', name: '밀크 쉐이크', price: 4000, icon: '🥤', keywords: ['쉐이크', '밀크쉐이크'], translation: '간 우유 아이스크림 음료', description: "하얀 우유와 달콤한 바닐라 아이스크림을 믹서기에 한데 윙 갈아 부드럽고 아주 시원하게 빨대로 빨아먹는 음료입니다." }
         ];
 
-        // 🌟 어르신 전용 종합 AI 질의응답 지식 사전 데이터베이스 (주문 옵션 및 결제 마무리 단계 단어 총망라)
         const SENIOR_DICTIONARY = {
             '이런게뭐야': "어르신, 잘 모르시거나 어려운 용어가 있다면 화면 속 메뉴를 가볍게 손가락으로 누르시거나 저에게 그냥 물어봐 주세요. 제가 무슨 고기인지, 어떤 맛인지 친절히 목소리로 다 가르쳐 드릴게요.",
             '세트': "세트 메뉴는 메인 햄버거에 간식인 감자튀김과 시원한 음료수까지 총 세 가지를 하나로 묶어서 원래 가격보다 더 싸게 드리는 푸짐한 구성입니다.",
@@ -241,7 +236,6 @@
             '터치스크린': "터치나 탭은 기계 화면 글자를 손가락 끝으로 가볍게 툭 누르라는 신호입니다. 힘주어 꾹 누르지 않으셔도 똑똑하게 잘 인식합니다."
         };
 
-        // 앱 상태 변수
         let cart = []; let orders = []; let activeCategory = '전체'; let appMode = 'kiosk';
         let isListening = false; let isTtsMuted = false; let shouldRestartRecognition = false;
         let selectedModalItem = null; let currentModalQty = 1;
@@ -254,10 +248,13 @@
             recognition.lang = 'ko-KR';
             recognition.interimResults = true;
             recognition.maxAlternatives = 1;
+            
+            // 🌟 [핵심 수정 1] 단발성으로 꺼지지 않게 브라우저 연속 음성 인식 옵션 강제 ON
+            recognition.continuous = true; 
 
             recognition.onstart = () => {
                 isListening = true; updateListeningUI(); showVoiceArea(true);
-                setTranscriptText('듣고 있습니다... 콰트로치즈버거가 뭐야? 혹은 계산해줘 라고 말씀해 보세요.');
+                setTranscriptText('듣고 있습니다... 무엇이든 편하게 말씀해 보세요.');
             };
 
             recognition.onresult = (event) => {
@@ -266,11 +263,27 @@
                 if (event.results[0].isFinal) { processVoiceCommand(currentTranscript); }
             };
 
-            recognition.onerror = () => { isListening = false; shouldRestartRecognition = false; updateListeningUI(); };
+            // 🌟 [핵심 수정 2] 침묵 에러(no-speech) 발생 시 마이크 루프를 강제 종료하던 버그 제거
+            recognition.onerror = (event) => {
+                console.log("인식 엔진 상태 알림:", event.error);
+                // 어르신들이 말씀이 없거나 고르시는 중일 때 발생하는 침묵 에러는 무시하고 패스합니다.
+                if (event.error === 'no-speech') {
+                    return; 
+                }
+                // 권한 거부 등 진짜 치명적 에러 시에만 루프 플래그 해제
+                if (event.error === 'not-allowed') {
+                    setTranscriptText('마이크 접근 권한이 거부되었습니다.');
+                    isListening = false;
+                    shouldRestartRecognition = false;
+                    updateListeningUI();
+                }
+            };
+
             recognition.onend = () => {
                 isListening = false; updateListeningUI();
+                // 사용자가 직접 종료 단추를 누르지 않았다면 무조건 마이크 무한 자동 대기 루프 가동
                 if (shouldRestartRecognition) {
-                    setTimeout(() => { try { recognition.start(); } catch (e) {} }, 300);
+                    setTimeout(() => { try { recognition.start(); } catch (e) {} }, 200);
                 } else {
                     setTimeout(() => { if(!isListening) showVoiceArea(false); }, 15000);
                 }
@@ -283,7 +296,7 @@
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ko-KR';
-                utterance.rate = 0.95; // 어르신들을 위해 속도를 살짝 느리고 명확하게 설정
+                utterance.rate = 0.93; // 어르신 맞춤형 정갈하고 부드러운 속도
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -309,116 +322,72 @@
             }
         }
 
-        // 🌟 지식사전 원터치 호출 유틸リティ
         function askDictionary(key) {
             const answer = SENIOR_DICTIONARY[key];
-            if (answer) {
-                showAiResponse(answer);
-                speakFeedback(answer);
-            }
+            if (answer) { showAiResponse(answer); speakFeedback(answer); }
         }
 
-        // 🌟 음성 명령 고도화 분석기
         function processVoiceCommand(command) {
             const cleanCommand = command.trim();
 
-            // 1순위: "뭐야?", "어떤거야?" 질문 가로채기 분석
-            if (/(뭐야|무슨|어떤|뜻|어떻게|어려워|도와줘)/.test(cleanCommand)) {
-                // 특정 키워드 사전 분석 매칭
+            if (/(뭐야|무슨|어떤|뜻|어떻게|어려워|도와줘|알려줘)/.test(cleanCommand)) {
                 for (const key in SENIOR_DICTIONARY) {
                     if (cleanCommand.includes(key)) {
-                        showAiResponse(SENIOR_DICTIONARY[key]);
-                        speakFeedback(SENIOR_DICTIONARY[key]);
-                        return;
+                        showAiResponse(SENIOR_DICTIONARY[key]); speakFeedback(SENIOR_DICTIONARY[key]); return;
                     }
                 }
-                // 메뉴 데이터 키워드 분석 매칭
                 for (const item of MENU_DATA) {
                     const match = item.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(item.name);
-                    if (match) {
-                        openSeniorModal(item);
-                        return;
-                    }
+                    if (match) { openSeniorModal(item); return; }
                 }
-                // 기본 범용 도움말 답변
-                askDictionary('이런게뭐야');
-                return;
+                askDictionary('이런게뭐야'); return;
             }
 
-            // 2순위: 계산 및 결제 명령어 우회 차단 및 처리[cite: 1]
             if (/(결제|계산|주문\s*완료|완료해|돈\s*내|살게|살래|포장)/.test(cleanCommand)) {
                 if (cart.length === 0) {
-                    showAiResponse('🛒 어르신, 아직 장바구니에 고르신 음식이 담겨있지 않습니다.');
+                    showAiResponse('🛒 어르신, 아직 장바구니에 음식이 고르지 않으셨습니다.');
                     speakFeedback('장바구니가 비어 있어 결제할 수 없습니다.');
                     return; //[cite: 1]
                 }
-                executeCheckout();
-                return; //[cite: 1]
+                executeCheckout(); return; //[cite: 1]
             }
 
-            // 3순위: 메뉴 담기 분석
             let matchedAny = false;
             MENU_DATA.forEach(item => {
                 const isMatch = item.keywords.some(k => cleanCommand.includes(k)) || cleanCommand.includes(item.name);
                 if (isMatch) {
-                    matchedAny = true;
-                    addManyToCart(item, 1);
-                    showAiResponse(`🛒 어르신이 말씀하신 '${item.name}' 1개를 장바구니에 담았습니다.`);
-                    speakFeedback(`${item.name} 1개 장바구니에 담았습니다.`);
+                    matchedAny = true; addManyToCart(item, 1);
+                    showAiResponse(`🛒 어르신이 말씀하신 '${item.name}' 1개를 보관함에 담았습니다.`);
+                    speakFeedback(`${item.name} 담았습니다.`);
                 }
             });
 
             if (!matchedAny) {
-                showAiResponse('🤔 어르신, 제가 귀가 어두워 잘 알아듣지 못했어요. 메뉴 이름을 다시 한번 정확히 말씀해 주세요.');
-                speakFeedback('다시 한번 말씀해 주세요.');
+                showAiResponse('🤔 어르신, 기계가 단어를 잘 알아듣지 못했어요. 메뉴 이름을 편하게 한 번 더 말씀해 주세요.');
+                speakFeedback('한 번 더 말씀해 주세요.');
             }
         }
 
-        // 🌟 어르신 전용 모달 오픈 (화면에서 메뉴를 눌렀을 때 실행)
         function openSeniorModal(item) {
-            selectedModalItem = item;
-            currentModalQty = 1;
-            
+            selectedModalItem = item; currentModalQty = 1;
             document.getElementById('modal-item-icon').innerText = item.icon;
             document.getElementById('modal-item-name').innerText = item.name;
             document.getElementById('modal-item-translation').innerText = `💡 쉬운 말 뜻: ${item.translation}`;
             document.getElementById('modal-item-description').innerText = item.description;
             document.getElementById('modal-item-qty').innerText = currentModalQty;
-
             document.getElementById('senior-explain-modal').classList.remove('hidden');
-            
-            // 모달 열리자마자 어르신에게 메뉴의 정체를 음성으로 상세 안내 서비스 재생
             speakFeedback(`${item.name}은, ${item.description}`);
         }
 
-        function closeSeniorModal() {
-            document.getElementById('senior-explain-modal').classList.add('hidden');
-            selectedModalItem = null;
-        }
+        function closeSeniorModal() { document.getElementById('senior-explain-modal').classList.add('hidden'); selectedModalItem = null; }
+        function changeModalQty(delta) { currentModalQty += delta; if (currentModalQty < 1) currentModalQty = 1; document.getElementById('modal-item-qty').innerText = currentModalQty; }
+        function addModalItemToCart() { if (selectedModalItem) { addManyToCart(selectedModalItem, currentModalQty); speakFeedback(`${selectedModalItem.name} 담았습니다.`); closeSeniorModal(); } }
 
-        function changeModalQty(delta) {
-            currentModalQty += delta;
-            if (currentModalQty < 1) currentModalQty = 1;
-            document.getElementById('modal-item-qty').innerText = currentModalQty;
-        }
-
-        function addModalItemToCart() {
-            if (selectedModalItem) {
-                addManyToCart(selectedModalItem, currentModalQty);
-                speakFeedback(`${selectedModalItem.name} ${currentModalQty}개를 하단 장바구니에 보관했습니다.`);
-                closeSeniorModal();
-            }
-        }
-
-        // 메인 메뉴판 인터페이스 드로잉
         function renderMenu() {
-            const grid = document.getElementById('menu-grid');
-            grid.innerHTML = '';
+            const grid = document.getElementById('menu-grid'); grid.innerHTML = '';
             const filtered = activeCategory === '전체' ? MENU_DATA : MENU_DATA.filter(item => item.category === activeCategory);
-
             filtered.forEach(item => {
                 const card = document.createElement('button');
-                // 메뉴 카드 누르면 바로 모달이 열려서 설명해 줌
                 card.onclick = () => openSeniorModal(item);
                 card.className = "bg-white p-6 rounded-3xl shadow-md hover:shadow-lg transition-all flex flex-col items-center justify-between gap-4 border-2 border-gray-100 hover:border-amber-400 active:scale-95 text-center";
                 card.innerHTML = `
@@ -429,8 +398,7 @@
                     </div>
                     <div class="text-xl text-red-600 font-black bg-red-50/70 w-full py-2 rounded-xl border border-red-100">
                         ${item.price.toLocaleString()}원
-                    </div>
-                `;
+                    </div>`;
                 grid.appendChild(card);
             });
         }
@@ -440,21 +408,14 @@
             const totalText = document.getElementById('cart-total-price');
             const badge = document.getElementById('cart-count-badge');
             const btnCheckout = document.getElementById('btn-checkout');
-            container.innerHTML = '';
-            let totalCount = 0; let totalPrice = 0;
+            container.innerHTML = ''; let totalCount = 0; let totalPrice = 0;
 
             if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center text-gray-400 p-8">
-                        <p class="text-center font-bold text-gray-500 text-lg">아직 고르신 음식이 없습니다.</p>
-                        <p class="text-center text-xs text-gray-400 mt-1">화면의 메뉴를 누르면 설명이 나옵니다.</p>
-                    </div>`;
-                btnCheckout.disabled = true;
-                btnCheckout.className = "w-full py-4 rounded-2xl text-2xl font-black flex justify-center items-center gap-2 bg-gray-200 text-gray-400 cursor-not-allowed";
+                container.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-gray-400 p-8"><p class="text-center font-bold text-gray-500 text-lg">아직 고르신 음식이 없습니다.</p></div>`;
+                btnCheckout.disabled = true; btnCheckout.className = "w-full py-4 rounded-2xl text-2xl font-black flex justify-center items-center gap-2 bg-gray-200 text-gray-400 cursor-not-allowed";
             } else {
                 cart.forEach(cartItem => {
-                    totalCount += cartItem.quantity;
-                    totalPrice += cartItem.item.price * cartItem.quantity;
+                    totalCount += cartItem.quantity; totalPrice += cartItem.item.price * cartItem.quantity;
                     const row = document.createElement('div');
                     row.className = "flex justify-between items-center bg-white p-3 rounded-2xl border border-gray-200 shadow-sm animate-fade-in";
                     row.innerHTML = `
@@ -472,114 +433,63 @@
                         </div>`;
                     container.appendChild(row);
                 });
-                btnCheckout.disabled = false;
-                btnCheckout.className = "w-full py-4 rounded-2xl text-2xl font-black flex justify-center items-center gap-2 bg-red-600 text-white hover:bg-red-700 shadow-xl cursor-pointer active:scale-95 transition-all";
+                btnCheckout.disabled = false; btnCheckout.className = "w-full py-4 rounded-2xl text-2xl font-black flex justify-center items-center gap-2 bg-red-600 text-white hover:bg-red-700 shadow-xl cursor-pointer active:scale-95 transition-all";
             }
-            totalText.innerText = totalPrice.toLocaleString();
-            badge.innerText = `${totalCount}개`;
+            totalText.innerText = totalPrice.toLocaleString(); badge.innerText = `${totalCount}개`;
         }
 
-        function addManyToCart(item, qty) {
-            const exist = cart.find(c => c.item.id === item.id);
-            if (exist) { exist.quantity += qty; } else { cart.push({ item, quantity: qty }); }
-            renderCart();
-        }
-
-        function changeCartQty(id, delta) {
-            const exist = cart.find(c => c.item.id === id);
-            if (exist) {
-                exist.quantity += delta;
-                if (exist.quantity <= 0) cart = cart.filter(c => c.item.id !== id);
-            }
-            renderCart();
-        }
-
-        function clearCart() { cart = []; renderCart(); speakFeedback("장바구니를 비우고 새로 시작합니다."); }
+        function addManyToCart(item, qty) { const exist = cart.find(c => c.item.id === item.id); if (exist) { exist.quantity += qty; } else { cart.push({ item, quantity: qty }); } renderCart(); }
+        function changeCartQty(id, delta) { const exist = cart.find(c => c.item.id === id); if (exist) { exist.quantity += delta; if (exist.quantity <= 0) cart = cart.filter(c => c.item.id !== id); } renderCart(); }
+        function clearCart() { cart = []; renderCart(); speakFeedback("음식 상자를 비웠습니다."); }
 
         function filterCategory(cat) {
             activeCategory = cat;
             const tabs = document.querySelectorAll('.category-tab');
             tabs.forEach(tab => {
-                tab.className = tab.innerText.includes(cat) 
-                    ? "category-tab px-8 py-3.5 rounded-2xl font-black text-xl bg-amber-600 text-white ring-4 ring-amber-200"
-                    : "category-tab px-8 py-3.5 rounded-2xl font-black text-xl bg-white text-gray-700 hover:bg-gray-100 shadow-md";
+                tab.className = tab.innerText.includes(cat) ? "category-tab px-8 py-3.5 rounded-2xl font-black text-xl bg-amber-600 text-white ring-4 ring-amber-200" : "category-tab px-8 py-3.5 rounded-2xl font-black text-xl bg-white text-gray-700 hover:bg-gray-100 shadow-md";
             });
             renderMenu();
         }
 
         function executeCheckout() {
             if (cart.length === 0) return;
-            shouldRestartRecognition = false;
-            if (recognition) recognition.stop();
-
+            shouldRestartRecognition = false; if (recognition) recognition.stop();
             const orderNum = Math.floor(Math.random() * 900) + 100;
             const dateStr = new Date().toLocaleString('ko-KR');
             const total = cart.reduce((sum, c) => sum + (c.item.price * c.quantity), 0);
 
-            const newOrder = {
-                id: Date.now().toString(), orderNumber: orderNum, date: dateStr,
-                items: cart.map(c => ({ name: c.item.name, icon: c.item.icon, quantity: c.quantity })),
-                totalPrice: total, status: '대기중'
-            };
-            orders.unshift(newOrder); updateKitchenBadge();
+            orders.unshift({ id: Date.now().toString(), orderNumber: orderNum, date: dateStr, items: cart.map(c => ({ name: c.item.name, icon: c.item.icon, quantity: c.quantity })), totalPrice: total, status: '대기중' });
+            updateKitchenBadge();
 
             document.getElementById('receipt-number').innerText = `대기번호: ${orderNum}번`;
             document.getElementById('receipt-date').innerText = dateStr;
             document.getElementById('receipt-total').innerText = `${total.toLocaleString()}원`;
             const rItems = document.getElementById('receipt-items'); rItems.innerHTML = '';
-            cart.forEach(c => {
-                rItems.innerHTML += `<div class="flex justify-between text-base font-bold text-gray-700"><span>${c.item.icon} ${c.item.name} x ${c.quantity}</span><span>${(c.item.price * c.quantity).toLocaleString()}원</span></div>`;
-            });
+            cart.forEach(c => { rItems.innerHTML += `<div class="flex justify-between text-base font-bold text-gray-700"><span>${c.item.icon} ${c.item.name} x ${c.quantity}</span><span>${(c.item.price * c.quantity).toLocaleString()}원</span></div>`; });
 
             document.getElementById('receipt-modal').classList.remove('hidden');
             cart = []; renderCart();
-            speakFeedback(`결제가 정상적으로 끝났습니다. 어르신의 영수증 대기번호는 ${orderNum}번입니다. 음식이 나오면 번호표로 알려드릴게요. 감사합니다.`);
+            speakFeedback(`결제가 완료되었습니다. 어르신의 대기번호는 ${orderNum}번입니다. 음식이 나오면 번호표로 알려드릴게요. 감사합니다.`);
         }
 
         function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
-
-        function showVoiceArea(show) {
-            const area = document.getElementById('voice-feedback-area');
-            if (show) area.classList.remove('hidden'); else area.classList.add('hidden');
-        }
-
-        function setTranscriptText(text) {
-            const row = document.getElementById('transcript-row');
-            const span = document.getElementById('transcript-text');
-            if (text) { row.classList.remove('hidden'); span.innerText = text; } else { row.classList.add('hidden'); }
-        }
-
-        function showAiResponse(msg) {
-            const row = document.getElementById('feedback-row');
-            const span = document.getElementById('feedback-text');
-            showVoiceArea(true);
-            row.classList.remove('hidden');
-            span.innerText = msg;
-        }
+        function showVoiceArea(show) { const area = document.getElementById('voice-feedback-area'); if (show) area.classList.remove('hidden'); else area.classList.add('hidden'); }
+        function setTranscriptText(text) { const row = document.getElementById('transcript-row'); const span = document.getElementById('transcript-text'); if (text) { row.classList.remove('hidden'); span.innerText = text; } else { row.classList.add('hidden'); } }
+        function showAiResponse(msg) { const row = document.getElementById('feedback-row'); const span = document.getElementById('feedback-text'); showVoiceArea(true); row.classList.remove('hidden'); span.innerText = msg; }
 
         function setAppMode(mode) {
             appMode = mode;
-            const viewKiosk = document.getElementById('kiosk-view');
-            const sidebarCart = document.getElementById('sidebar-cart');
-            const viewKitchen = document.getElementById('kitchen-view');
-            if (mode === 'kiosk') {
-                viewKiosk.classList.remove('hidden'); sidebarCart.classList.remove('hidden'); viewKitchen.classList.add('hidden');
-            } else {
-                viewKiosk.classList.add('hidden'); sidebarCart.classList.add('hidden'); viewKitchen.classList.remove('hidden');
-                renderKitchen();
-            }
+            const viewKiosk = document.getElementById('kiosk-view'); const sidebarCart = document.getElementById('sidebar-cart'); const viewKitchen = document.getElementById('kitchen-view');
+            if (mode === 'kiosk') { viewKiosk.classList.remove('hidden'); sidebarCart.classList.remove('hidden'); viewKitchen.classList.add('hidden'); } 
+            else { viewKiosk.classList.add('hidden'); sidebarCart.classList.add('hidden'); viewKitchen.classList.remove('hidden'); renderKitchen(); }
         }
 
         function renderKitchen() {
             const container = document.getElementById('kitchen-orders-container'); container.innerHTML = '';
             if (orders.length === 0) { container.innerHTML = `<div class="bg-white p-8 rounded-2xl text-center text-gray-400">대기 주문 없음</div>`; return; }
-            orders.forEach(o => { container.innerHTML += `<div class="bg-white p-4 rounded-xl border mb-2 text-xl font-bold"><b>${o.orderNumber}번 주문 접수 완료</b> (${o.status})</div>`; });
+            orders.forEach(o => { container.innerHTML += `<div class="bg-white p-4 rounded-xl border mb-2 text-xl font-bold"><b>${o.orderNumber}번 주문 접수</b> (${o.status})</div>`; });
         }
-
-        function updateKitchenBadge() {
-            const badge = document.getElementById('kitchen-count');
-            if (orders.length > 0) { badge.innerText = orders.length; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
-        }
+        function updateKitchenBadge() { const badge = document.getElementById('kitchen-count'); if (orders.length > 0) { badge.innerText = orders.length; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
 
         window.onload = () => { renderMenu(); renderCart(); };
     </script>
