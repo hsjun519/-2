@@ -209,7 +209,7 @@
         const MENU_DATA = [
             { id: 1, category: '버거', name: '콰트로치즈버거', price: 6500, icon: '🍔', translation: '네 가지 치즈 햄버거', description: "콰트로는 숫자 4를 뜻합니다. 체다, 모짜렐라 등 고소하고 진한 네 가지 종류의 맛있는 치즈가 고기 패티와 함께 가득 들어간 부드러운 햄버거입니다.", keywords: ['콰트로', '콰트로치즈', '치즈버거', '치즈 버거'] },
             { id: 2, category: '버거', name: '쉬림프버거', price: 5500, icon: '🍤', translation: '탱글탱글 새우 햄버거', description: "쉬림프는 새우를 뜻합니다. 통통하고 고소한 새우를 바삭하게 튀겨내어 소스와 함께 빵 사이에 넣은 담백한 버거입니다.", keywords: ['쉬림프', '쉬림프버거', '새우버거', '새우 버거'] },
-            { id: 3, category: '버거', name: '비프플래터', price: 9500, icon: '🍖', translation: '소고기 모듬 한 접시 요리', description: "비프는 소고기, 플래터는 큰 접시 요리를 뜻합니다. 불에 구운 맛있는 소고기 패티 and 감자튀김, 신선한 야채 샐러드를 큰 접시에 한데 모아 푸짐하게 먹는 요리입니다.", keywords: ['비프', '플래터', '비프플래터', '모듬요리'] },
+            { id: 3, category: '버거', name: '비프플래터', price: 9500, icon: '🍖', translation: '소고기 모듬 한 접시 요리', description: "비프는 소고기, 플래터는 큰 접시 요리를 뜻합니다. 불에 구운 맛있는 소고기 패티와 감자튀김, 신선한 야채 샐러드를 큰 접시에 한데 모아 푸짐하게 먹는 요리입니다.", keywords: ['비프', '플래터', '비프플래터', '모듬요리'] },
             { id: 4, category: '버거', name: '빅맥버거', price: 6000, icon: '🍔', translation: '곱빼기 고기 햄버거', description: "두툼한 소고기 패티 고기가 두 장이나 들어가고, 중간에 빵이 한 층 더 들어있어 양이 아주 푸짐하고 배부른 정통 고기 버거입니다.", keywords: ['빅맥', '빅 맥'] },
             { id: 5, category: '사이드', name: '청크 초코 쿠키', price: 2500, icon: '🍪', translation: '큼직한 초콜릿 과자', description: "청크는 큼직한 덩어리를 뜻합니다. 가루 초콜릿이 아니라 입안에서 씹히는 달콤하고 커다란 초콜릿 알맹이가 과자 속에 콕콕 박혀 있는 바삭한 서양식 과자입니다.", keywords: ['청크', '초코쿠키', '쿠키', '과자'] },
             { id: 6, category: '사이드', name: '디핑 치즈스틱', price: 3000, icon: '🥖', translation: '소스에 찍어먹는 치즈 통밀빵', description: "디핑은 양념 소스에 푹 찍어 먹는다는 뜻입니다. 길쭉한 빵 속에 고소한 모짜렐라 치즈를 넣고 튀겨내어 달콤한 양념 소스에 찍어 먹는 별미 간식입니다.", keywords: ['치즈스틱', '스틱', '디핑'] },
@@ -248,21 +248,30 @@
             recognition.lang = 'ko-KR';
             recognition.interimResults = true;
             recognition.maxAlternatives = 1;
-            recognition.continuous = true; 
+            
+            // 🌟 [해결책 1] 로컬에서 가장 안정적인 단발성 기본 인식 모드로 롤백
+            recognition.continuous = false; 
 
             recognition.onstart = () => {
                 showVoiceArea(true);
                 setTranscriptText('듣고 있습니다... 무엇이든 편하게 말씀해 보세요.');
             };
 
+            // 🌟 [해결책 2] 인식 도중 에러가 나거나 배열 인덱스가 밀려도 가장 '마지막 문장'만 정확하게 추출하도록 전면 수정
             recognition.onresult = (event) => {
-                const currentTranscript = Array.from(event.results).map(result => result[0].transcript).join('');
+                const latestIndex = event.results.length - 1;
+                const currentTranscript = event.results[latestIndex][0].transcript;
+                
                 setTranscriptText(currentTranscript);
-                if (event.results[0].isFinal) { processVoiceCommand(currentTranscript); }
+                
+                if (event.results[latestIndex].isFinal) {
+                    processVoiceCommand(currentTranscript);
+                }
             };
 
             recognition.onerror = (event) => {
                 console.log("엔진 로깅:", event.error);
+                // 침묵 에러나 중단 신호가 와도 사용자 모드가 켜져 있다면 패스합니다.
                 if (event.error === 'no-speech' || event.error === 'aborted') {
                     return; 
                 }
@@ -275,9 +284,14 @@
             };
 
             recognition.onend = () => {
-                // 🌟 [핵심 수정] 사용자가 작동 중인 상태라면 UI를 원상복구(깜빡임) 시키지 않고, 백그라운드에서 조용히 재시작 루프만 돌립니다.
+                // 🌟 [해결책 3 - 핵심!] 브라우저가 마이크를 껐다 켜는 순간에는 UI 변수를 절대 건드리지 않습니다.
+                // 오직 백그라운드에서 끊김 없이 다음 음성을 들을 수 있게 조용히 재접속만 시도합니다. (깜빡임 완벽 봉쇄)
                 if (shouldRestartRecognition) {
-                    setTimeout(() => { try { recognition.start(); } catch (e) {} }, 250);
+                    setTimeout(() => { 
+                        try { 
+                            if(shouldRestartRecognition) recognition.start(); 
+                        } catch (e) {} 
+                    }, 200);
                 } else {
                     isListening = false;
                     updateListeningUI();
@@ -297,18 +311,16 @@
             }
         }
 
-        // 🌟 [UI 완벽 격리 수동 제어 구조] 사용자가 직접 버튼을 누를 때만 딱 한 번 UI 디자인을 고정 변경합니다.
+        // 🌟 [해결책 4] UI 상태는 오직 사용자가 직접 '버거 클릭' 또는 '시작/종료'를 제어할 때만 단 한 번 바뀝니다.
         function toggleListening() {
             if (!recognition) { alert('음성 인식을 지원하지 않는 브라우저입니다.'); return; }
             
             if (shouldRestartRecognition) {
-                // 끄기 작동
                 shouldRestartRecognition = false;
-                recognition.stop();
                 isListening = false;
                 updateListeningUI();
+                recognition.stop();
             } else {
-                // 켜기 작동
                 shouldRestartRecognition = true;
                 isListening = true;
                 updateListeningUI();
