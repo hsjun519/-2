@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>행복 카페 스마트 키오스크 (손님 안심 최종 완성판)</title>
+    <title>행복 카페 스마트 보이스 키오스크 (라즈베리파이 최적화 마스터판)</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; user-select: none; -webkit-user-select: none; background-color: #f8fafc; overflow: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 음성 인식 웨이브 애니메이션 */
         .wave-animation { display: flex; align-items: center; gap: 4px; }
         .wave-bar { width: 4.5px; height: 15px; background-color: #3b82f6; border-radius: 2px; animation: wave 1.2s ease-in-out infinite; }
         .wave-bar:nth-child(2) { animation-delay: 0.15s; }
@@ -23,9 +27,9 @@
 
     <div id="app" class="h-full w-full relative">
         
+        <!-- 🌟 [화면 1] 대기 화면 -->
         <div id="view-welcome" class="view-screen h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-950 cursor-pointer transition-opacity duration-300 relative z-50" onclick="startKiosk()">
-            <div class="absolute inset-0 opacity-20 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=1000');"></div>
-            
+            <!-- 라즈베리파이 최적화를 위해 무거운 외부 배경 이미지 제거하고 순수 CSS 그라데이션만 사용 -->
             <div class="relative z-10 text-center flex flex-col items-center">
                 <span class="bg-yellow-400 text-yellow-950 font-black text-xl px-6 py-2 rounded-full mb-6 shadow-md tracking-wider">PREMIUM COFFEE SHOP</span>
                 <h1 class="text-7xl font-black text-white mb-4 tracking-tight drop-shadow-lg">행복 카페</h1>
@@ -42,8 +46,10 @@
             <div class="absolute bottom-8 text-slate-400 text-xl font-bold">마이크에 대고 편하게 말씀하시면 인공지능이 도와드립니다.</div>
         </div>
 
+        <!-- 🌟 [화면 2] 메인 주문 레이아웃 -->
         <div id="view-main" class="view-screen hidden h-full flex bg-slate-100 relative z-10">
             
+            <!-- [좌측] 카테고리 사이드바 -->
             <div class="w-[16%] bg-slate-900 flex flex-col items-center py-6 shadow-2xl z-20 border-r border-slate-800">
                 <div class="mb-10 text-center cursor-pointer" onclick="navigate('welcome')">
                     <span class="text-yellow-400 text-sm font-black tracking-widest block mb-1">HAPPY</span>
@@ -56,6 +62,7 @@
                 </button>
             </div>
 
+            <!-- [중앙] 메뉴 및 음성 인터페이스 -->
             <div class="w-[54%] flex flex-col h-full bg-slate-50 relative z-10">
                 <div class="p-4 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between z-20">
                     <button id="btn-listen" onclick="toggleListening()" class="flex-1 max-w-[85%] bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center justify-between transition-all active:scale-95">
@@ -65,7 +72,7 @@
                             </div>
                             <div class="text-left">
                                 <span id="listen-status" class="text-sm text-blue-200 font-bold block mb-1">손님 말씀 듣고 있어요</span>
-                                <span id="listen-text" class="text-2xl font-black tracking-tight">"아무거나 추천해 줘"</span>
+                                <span id="listen-text" class="text-2xl font-black tracking-tight">"비프가 뭐야?", "콜라 하나 줘"</span>
                             </div>
                         </div>
                         <div id="listening-indicator" class="wave-animation">
@@ -93,10 +100,10 @@
 
                 <div class="mx-4 mt-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex gap-2 overflow-x-auto no-scrollbar items-center shrink-0">
                     <span class="bg-blue-600 text-white px-2 py-1.5 rounded font-bold text-sm shrink-0">💡 말해보세요</span>
-                    <button onclick="askDictionary('추천')" class="text-blue-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-blue-200 hover:bg-blue-100">❓ "아무거나 하나 줘"</button>
-                    <button onclick="askDictionary('취소')" class="text-rose-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-rose-200 hover:bg-rose-50">↩️ "방금 거 취소"</button>
+                    <button onclick="askDictionary('취소')" class="text-rose-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-rose-200 hover:bg-rose-50">↩️ "콜라 취소해 줘"</button>
+                    <button onclick="askDictionary('추천')" class="text-blue-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-blue-200 hover:bg-blue-100">❓ "가장 맛있는 게 뭐야?"</button>
                     <button onclick="askDictionary('세트')" class="text-amber-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-amber-200 hover:bg-amber-50">🍔 "세트가 뭐야?"</button>
-                    <button onclick="askDictionary('사이즈')" class="text-indigo-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-indigo-200 hover:bg-indigo-50">🥤 "라지 사이즈가 뭐야?"</button>
+                    <button onclick="askDictionary('테이크아웃')" class="text-emerald-900 font-bold text-sm bg-white px-4 py-2 rounded-full shadow-sm shrink-0 border border-emerald-200 hover:bg-emerald-50">🛍️ "테이크아웃이 뭐야?"</button>
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-5 content-start no-scrollbar">
@@ -104,27 +111,28 @@
                 </div>
             </div>
             
-            <div class="w-[30%] h-full bg-white flex flex-col shadow-[-10px_0_30px_rgba(0,0,0,0.05)] relative z-30">
-                <div class="p-6 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
+            <!-- [우측] 장바구니 패널 -->
+            <div class="w-[30%] h-full bg-white flex flex-col shadow-[-10px_0_30px_rgba(0,0,0,0.1)] relative z-30">
+                <div class="p-6 bg-stone-800 text-white flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <i class="fas fa-shopping-basket text-yellow-400 text-2xl"></i>
-                        <h3 class="text-2xl font-black tracking-tight">선택한 메뉴</h3>
+                        <i class="fas fa-shopping-basket text-amber-400 text-2xl"></i>
+                        <h3 class="text-2xl font-black tracking-tight">내가 고른 메뉴</h3>
                     </div>
-                    <button onclick="clearCart()" class="text-sm bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700 font-bold active:scale-95 transition-all">전체 비우기</button>
+                    <button onclick="clearCart()" class="text-sm bg-stone-700 border border-stone-600 px-4 py-2 rounded-xl text-stone-300 hover:text-white font-bold active:scale-95 transition-all">전체 비우기</button>
                 </div>
                 
-                <div class="flex-1 overflow-y-auto p-4 bg-slate-50 gap-4 flex flex-col no-scrollbar" id="cart-container"></div>
+                <div class="flex-1 overflow-y-auto p-4 bg-slate-100 gap-4 flex flex-col border-l border-slate-200 no-scrollbar" id="cart-container"></div>
                 
-                <div class="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-20">
+                <div class="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_20px_rgba(0,0,0,0.03)] z-20">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-lg font-bold text-slate-500">총 상품 수량</span>
+                        <span class="text-lg font-bold text-slate-500">담은 개수</span>
                         <span class="text-2xl font-extrabold text-slate-800"><span id="cart-count" class="text-blue-600">0</span>개</span>
                     </div>
                     <div class="flex justify-between items-end mb-6">
                         <span class="text-2xl font-black text-slate-800">결제할 금액</span>
-                        <div class="text-right">
+                        <div class="text-right flex items-baseline gap-1">
                             <span class="text-5xl font-black text-rose-600 tracking-tighter" id="cart-total">0</span>
-                            <span class="text-2xl font-bold text-slate-800">원</span>
+                            <span class="text-2xl font-bold text-slate-800 mb-1">원</span>
                         </div>
                     </div>
                     <button id="btn-checkout" onclick="handleCheckout()" class="w-full bg-rose-500 hover:bg-rose-600 text-white py-6 rounded-2xl text-2xl font-black shadow-lg shadow-rose-500/20 active:scale-98 transition-all flex justify-center items-center gap-3 disabled:bg-slate-300 disabled:shadow-none" disabled>
@@ -135,6 +143,7 @@
             </div>
         </div>
 
+        <!-- 🌟 [화면 3] 카드 / 현금 결제수단 화면 -->
         <div id="view-checkout" class="view-screen hidden h-full flex flex-col bg-slate-50 relative z-40">
             <header class="bg-slate-900 text-white p-6 shadow-md flex justify-between items-center">
                 <h2 class="text-3xl font-black">신용카드 / 현금 결제</h2>
@@ -145,7 +154,7 @@
                     <h3 class="text-3xl text-slate-500 font-bold mb-4">결제해야 할 총 금액</h3>
                     <div class="text-7xl font-black text-rose-600 mb-8"><span id="checkout-final-total">0</span>원</div>
                     <p class="text-2xl text-blue-700 font-black mb-12 bg-blue-50 py-5 rounded-2xl border border-blue-100">
-                        "카드" 혹은 "현금" 이라고 말씀해 주시면 결제됩니다.
+                        <i class="fas fa-microphone"></i> "카드" 혹은 "현금" 이라고 말씀해 주시면 결제됩니다.
                     </p>
                     <div class="flex gap-6 w-full">
                         <button onclick="processPayment('카드')" class="flex-1 bg-blue-50 text-blue-700 border-2 border-blue-200 hover:bg-blue-100 hover:border-blue-400 py-14 rounded-3xl text-4xl font-black shadow-md transition-all flex flex-col items-center gap-5 active:scale-95">
@@ -159,6 +168,7 @@
             </div>
         </div>
 
+        <!-- 🌟 [화면 4] 결제 완료 화면 -->
         <div id="view-done" class="view-screen hidden h-full flex flex-col items-center justify-center bg-blue-600 text-white z-50 relative">
             <div class="bg-white text-blue-600 rounded-full w-48 h-48 flex items-center justify-center mb-8 shadow-2xl">
                 <i class="fas fa-check text-[7rem] animate-[scaleIn_0.5s_ease-out]"></i>
@@ -169,9 +179,9 @@
                 <p class="text-3xl font-bold text-blue-100 mb-2">대기 주문 번호</p>
                 <p class="text-8xl text-white font-black drop-shadow-lg" id="order-number">101</p>
             </div>
-            <p class="text-3xl font-bold text-blue-200 mb-16">출력되는 영수증을 꼭 챙겨가 주세요. 5초 뒤 돌아갑니다.</p>
+            <p class="text-3xl font-bold text-blue-200 mb-16">출력되는 영수증을 꼭 챙겨가 주세요. 3초 뒤 돌아갑니다.</p>
             <div class="w-full max-w-2xl bg-blue-800 h-4 rounded-full overflow-hidden shadow-inner">
-                <div class="bg-yellow-400 h-full w-full animate-[progress_5s_linear]"></div>
+                <div class="bg-yellow-400 h-full w-full animate-[progress_3s_linear]"></div>
             </div>
             <style>
                 @keyframes progress { 0% { width: 0%; } 100% { width: 100%; } }
@@ -179,7 +189,7 @@
             </style>
         </div>
 
-        <!-- 🌟 모달 영역 -->
+        <!-- 🌟 [모달 1] 아이템 담기 대화형 확인 모달 -->
         <div id="senior-explain-modal" class="fixed inset-0 bg-slate-900/85 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm transition-opacity">
             <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl border-4 border-blue-500 overflow-hidden flex flex-col transform scale-100">
                 
@@ -250,6 +260,7 @@
             </div>
         </div>
 
+        <!-- 🌟 [모달 2] 매장/포장 선택 모달 -->
         <div id="checkout-option-modal" class="fixed inset-0 bg-slate-900/85 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
             <div class="bg-white rounded-[2rem] p-10 max-w-2xl w-full shadow-2xl border-4 border-rose-500 text-center relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-rose-400 to-orange-400"></div>
@@ -269,6 +280,7 @@
             </div>
         </div>
 
+        <!-- 🌟 [모달 3] 직원 호출 모달 -->
         <div id="staff-call-modal" class="fixed inset-0 bg-slate-900/85 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
             <div class="bg-white rounded-[2rem] p-10 max-w-md w-full shadow-2xl border-4 border-rose-500 text-center animate-[fadeIn_0.2s]">
                 <div class="text-8xl mb-6 text-rose-500"><i class="fas fa-concierge-bell animate-bounce"></i></div>
@@ -288,25 +300,32 @@
 
     <!-- 스크립트 -->
     <script>
+        // 🌟 1. 라즈베리파이 최적화용 초경량 SVG 일러스트 생성 엔진
+        const getIconSvg = (bgColor, emoji) => {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="130">${emoji}</text></svg>`;
+            return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+        };
+
         const CATEGORIES = [
             { id: 'burger', name: '햄버거', icon: '🍔' },
             { id: 'side', name: '간식/사이드', icon: '🍟' },
             { id: 'coffee', name: '음료/커피', icon: '🥤' }
         ];
 
+        // 이미지 경로를 getIconSvg 함수 호출로 전면 교체
         const MENU_ITEMS = [
-            { id: 'quatro', name: '콰트로치즈버거', price: 6500, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400', icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, translation: '네 가지 치즈 햄버거', description: '치즈가 듬뿍 들어간 고소한 햄버거입니다.', keywords: ['콰트로', '콰트로치즈', '치즈버거', '치즈 버거', '치즈 많은 거', '치즈 든 거'] },
-            { id: 'shrimp', name: '쉬림프버거', price: 5500, img: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&q=80&w=400', icon: '🍤', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '통새우 햄버거', description: '고소한 통새우를 바삭하게 튀겨내어 만든 담백한 버거입니다.', keywords: ['쉬림프', '새우버거', '새우 버거', '새우 든 거'] },
-            { id: 'beef', name: '비프플래터', price: 9500, img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=400', icon: '🍖', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '소고기 모듬 요리', description: '소고기 패티와 야채를 한 접시에 모아 먹는 푸짐한 요리입니다.', keywords: ['비프', '플래터', '모듬요리', '고기 모듬'] },
-            { id: 'bigmac', name: '빅맥버거', price: 6000, img: 'https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&q=80&w=400', icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, translation: '곱빼기 고기 햄버거', description: '소고기 패티가 두 장 들어가 양이 아주 푸짐한 큰 햄버거입니다.', keywords: ['빅맥', '빅 맥', '큰 버거', '고기 두장'] },
-            { id: 'bulgogi', name: '불고기버거', price: 4500, img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&q=80&w=400', icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '달콤한 간장소스 햄버거', description: '달콤한 불고기 양념 고기가 들어간 부드러운 햄버거입니다.', keywords: ['불고기', '불고기버거', '불고기 버거'] },
-            { id: 'cookie', name: '청크 초코 쿠키', price: 2500, img: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&q=80&w=400', icon: '🍪', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '초콜릿 과자', description: '달콤한 초콜릿 알맹이가 박혀 있는 바삭한 과자입니다.', keywords: ['청크', '초코쿠키', '쿠키', '과자', '초콜릿', '단거'] },
-            { id: 'cheese_stick', name: '디핑 치즈스틱', price: 3000, img: 'https://images.unsplash.com/photo-1548340748-6d2b7d7da280?auto=format&fit=crop&q=80&w=400', icon: '🥖', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '치즈 통밀빵', description: '치즈를 튀겨내 양념에 찍어 먹는 간식입니다.', keywords: ['치즈스틱', '스틱', '디핑', '치즈 튀김'] },
-            { id: 'americano', name: '아메리카노', price: 2500, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=400', icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '기본 커피', description: '가장 많이 찾으시는 기본 블랙 커피입니다.', keywords: ['아메리카노', '아메', '블랙커피', '쓴커피', '커피'] },
-            { id: 'decaf', name: '디카페인 아메리카노', price: 3500, img: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&q=80&w=400', icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: false, translation: '잠 잘오는 커피', description: '카페인을 빼서 밤에 드셔도 속이 편안하고 잠이 잘 옵니다.', keywords: ['디카페인', '잠 잘오는 커피', '안 쓴 커피'] },
-            { id: 'vanilla', name: '바닐라라떼', price: 3500, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=400', icon: '🍯', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '달달한 커피', description: '우유와 달콤한 바닐라 향이 들어간 커피입니다.', keywords: ['바닐라라떼', '바닐라', '단커피', '달달한거', '달달한커피', '단 거'] },
-            { id: 'grapefruit', name: '자몽 에이드', price: 4000, img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400', icon: '🍹', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '톡 쏘는 과일 음료', description: '상큼한 자몽과 탄산수를 섞어 만든 시원한 과일 음료입니다.', keywords: ['에이드', '자몽에이드', '자몽', '과일 음료'] },
-            { id: 'cola', name: '콜라', price: 1500, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400', icon: '🥤', category: 'coffee', setOption: false, tempOption: false, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '톡 쏘는 콜라', description: '시원하고 톡 쏘는 검은색 탄산 음료입니다.', keywords: ['콜라', '코카콜라', '투명한 음료', '탄산', '음료수'] }
+            { id: 'quatro', name: '콰트로치즈버거', price: 6500, img: getIconSvg('#FEF3C7', '🍔🧀'), icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, translation: '네 가지 치즈 햄버거', description: '치즈가 듬뿍 들어간 고소한 햄버거입니다.', keywords: ['콰트로', '콰트로치즈', '치즈버거', '치즈 버거', '치즈 많은 거', '치즈 든 거'] },
+            { id: 'shrimp', name: '쉬림프버거', price: 5500, img: getIconSvg('#E0F2FE', '🍔🍤'), icon: '🍤', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '통새우 햄버거', description: '고소한 통새우를 바삭하게 튀겨내어 만든 담백한 버거입니다.', keywords: ['쉬림프', '새우버거', '새우 버거', '새우 든 거'] },
+            { id: 'beef', name: '비프플래터', price: 9500, img: getIconSvg('#FFEDD5', '🥩🥗'), icon: '🍖', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '소고기 모듬 요리', description: '소고기 패티와 야채를 한 접시에 모아 먹는 푸짐한 요리입니다.', keywords: ['비프', '플래터', '모듬요리', '고기 모듬'] },
+            { id: 'bigmac', name: '빅맥버거', price: 6000, img: getIconSvg('#FEF08A', '🍔🍔'), icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: true, translation: '곱빼기 고기 햄버거', description: '소고기 패티가 두 장 들어가 양이 아주 푸짐한 큰 햄버거입니다.', keywords: ['빅맥', '빅 맥', '큰 버거', '고기 두장'] },
+            { id: 'bulgogi', name: '불고기버거', price: 4500, img: getIconSvg('#FFEDD5', '🍔🥓'), icon: '🍔', category: 'burger', setOption: true, tempOption: false, sizeOption: false, bestSeller: false, translation: '달콤한 간장소스 햄버거', description: '달콤한 불고기 양념 고기가 들어간 부드러운 햄버거입니다.', keywords: ['불고기', '불고기버거', '불고기 버거'] },
+            { id: 'cookie', name: '청크 초코 쿠키', price: 2500, img: getIconSvg('#FDE68A', '🍪'), icon: '🍪', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '초콜릿 과자', description: '달콤한 초콜릿 알맹이가 박혀 있는 바삭한 과자입니다.', keywords: ['청크', '초코쿠키', '쿠키', '과자', '초콜릿', '단거'] },
+            { id: 'cheese_stick', name: '디핑 치즈스틱', price: 3000, img: getIconSvg('#FEF9C3', '🥖🧀'), icon: '🥖', category: 'side', setOption: false, tempOption: false, sizeOption: false, bestSeller: false, translation: '치즈 통밀빵', description: '치즈를 튀겨내 양념에 찍어 먹는 간식입니다.', keywords: ['치즈스틱', '스틱', '디핑', '치즈 튀김'] },
+            { id: 'americano', name: '아메리카노', price: 2500, img: getIconSvg('#E0E7FF', '☕'), icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '기본 커피', description: '가장 많이 찾으시는 기본 블랙 커피입니다.', keywords: ['아메리카노', '아메', '블랙커피', '쓴커피', '커피'] },
+            { id: 'decaf', name: '디카페인 아메리카노', price: 3500, img: getIconSvg('#F1F5F9', '☕💤'), icon: '☕', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: false, translation: '잠 잘오는 커피', description: '카페인을 빼서 밤에 드셔도 속이 편안하고 잠이 잘 옵니다.', keywords: ['디카페인', '잠 잘오는 커피', '안 쓴 커피'] },
+            { id: 'vanilla', name: '바닐라라떼', price: 3500, img: getIconSvg('#FEF3C7', '🥤🍯'), icon: '🍯', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'HOT', sizeOption: true, bestSeller: true, translation: '달달한 커피', description: '우유와 달콤한 바닐라 향이 들어간 커피입니다.', keywords: ['바닐라라떼', '바닐라', '단커피', '달달한거', '달달한커피', '단 거'] },
+            { id: 'grapefruit', name: '자몽 에이드', price: 4000, img: getIconSvg('#FFE4E6', '🍹🍊'), icon: '🍹', category: 'coffee', setOption: false, tempOption: true, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '톡 쏘는 과일 음료', description: '상큼한 자몽과 탄산수를 섞어 만든 시원한 과일 음료입니다.', keywords: ['에이드', '자몽에이드', '자몽', '과일 음료'] },
+            { id: 'cola', name: '콜라', price: 1500, img: getIconSvg('#F3F4F6', '🥤🧊'), icon: '🥤', category: 'coffee', setOption: false, tempOption: false, defaultTemp: 'ICE', sizeOption: true, bestSeller: false, translation: '톡 쏘는 콜라', description: '시원하고 톡 쏘는 검은색 탄산 음료입니다.', keywords: ['콜라', '코카콜라', '투명한 음료', '탄산', '음료수'] }
         ];
 
         const ALL_KEYWORDS = [];
@@ -571,7 +590,7 @@
                 }
             }
 
-            if (/(취|빼|삭제|지워|안\s*먹고\s*싶|안먹고\s*싶|안\s*먹을래|안먹을래)/.test(cleanCommand)) {
+            if (/(취소|빼|삭제|지워|안\s*먹고\s*싶|안먹고\s*싶|안\s*먹을래|안먹을래)/.test(cleanCommand)) {
                 let targetItem = null;
                 for (let kObj of ALL_KEYWORDS) {
                     if (cleanCommand.includes(kObj.kw)) { targetItem = kObj.item; break; }
@@ -831,11 +850,9 @@
             if (temp === 'HOT') {
                 btnHot.className = "flex-1 py-5 rounded-2xl border-4 border-rose-500 bg-rose-50 font-black text-2xl text-rose-700 shadow-md flex items-center justify-center gap-3 transform scale-105 transition-all";
                 btnIce.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-3 transition-all";
-                document.getElementById('modal-ai-question').innerText = `🔥 따뜻한 ${selectedModalItem.name} ${currentModalQty}개, 담을까요?`;
             } else {
                 btnIce.className = "flex-1 py-5 rounded-2xl border-4 border-blue-500 bg-blue-50 font-black text-2xl text-blue-700 shadow-md flex items-center justify-center gap-3 transform scale-105 transition-all";
                 btnHot.className = "flex-1 py-5 rounded-2xl border-2 border-slate-200 bg-white font-black text-2xl text-slate-500 hover:bg-slate-50 flex items-center justify-center gap-3 transition-all";
-                document.getElementById('modal-ai-question').innerText = `❄️ 시원한 ${selectedModalItem.name} ${currentModalQty}개, 담을까요?`;
             }
             updateModalPriceDisplay();
             if(!skipSound) speakFeedback(temp === 'HOT' ? '따뜻하게' : '시원하게');
@@ -927,7 +944,6 @@
             } 
         }
 
-        // 🌟 X 마크를 통한 개별 메뉴 삭제 기능
         function removeCartItem(cartId) {
             playClickSound();
             const item = cart.find(c => c.cartId === cartId);
@@ -989,7 +1005,6 @@
             speakFeedback(`결제가 끝났습니다. 영수증 번호는 ${orderNum}번입니다. 출력되는 영수증을 꼭 챙겨주세요.`);
             cart = []; lastAddedItems = []; renderCart();
 
-            // 🌟 3초 후 첫 화면으로 자동 복귀
             setTimeout(() => { closeReceipt(); }, 3000);
         }
 
@@ -1100,7 +1115,6 @@
                                     <span class="font-black text-2xl w-6 text-center">${cartItem.qty}</span>
                                     <button onclick="updateCartQty('${cartItem.cartId}', 1)" class="w-10 h-10 flex justify-center items-center rounded-lg bg-white text-slate-700 shadow-sm font-black text-2xl active:scale-90">+</button>
                                 </div>
-                                <!-- 🌟 개별 삭제 (X) 버튼 추가 -->
                                 <button onclick="removeCartItem('${cartItem.cartId}')" class="w-12 h-12 flex justify-center items-center rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-600 shadow-sm font-black text-2xl active:scale-90 ml-1 transition-all"><i class="fas fa-times"></i></button>
                             </div>
                         </div>
@@ -1114,21 +1128,6 @@
         }
 
         function calculateTotal() { return cart.reduce((sum, item) => sum + (item.price * item.qty), 0); }
-
-        function subtractFromCart(itemId, temp, size, isSet, qty) {
-            const exist = cart.find(c => c.id === itemId && c.temp === temp && c.size === size && c.isSet === isSet);
-            if (exist) { exist.qty -= qty; if (exist.qty <= 0) { cart = cart.filter(c => c.cartId !== exist.cartId); } }
-            renderCart();
-        }
-
-        function updateCartQty(cartId, delta) {
-            playClickSound();
-            const exist = cart.find(c => c.cartId === cartId);
-            if (exist) { exist.qty += delta; if (exist.qty <= 0) { cart = cart.filter(c => c.cartId !== cartId); } }
-            renderCart();
-        }
-
-        function clearCart() { playClickSound(); cart = []; lastAddedItems = []; renderCart(); speakFeedback("장바구니를 모두 비웠습니다."); }
 
         function showVoiceArea(show) { const area = document.getElementById('voice-feedback-area'); if (show) area.classList.remove('hidden'); else area.classList.add('hidden'); }
         function setTranscriptText(text) { const row = document.getElementById('transcript-row'); const span = document.getElementById('transcript-text'); if (text) { row.classList.remove('hidden'); span.innerText = text; } else { row.classList.add('hidden'); } }
